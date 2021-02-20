@@ -31,7 +31,7 @@ use Exception;
  * This class is an extension of the `Map` class that adds
  * support for keys of multiple datatypes. Normally a map only
  * supports `string` as a key, however this class extends this by allowing
- * any type to be used, even an object. 
+ * any type to be used, even an object.
  */
 class HashMap extends Map {
 
@@ -91,7 +91,7 @@ class HashMap extends Map {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\Map")]
+    #[Override("im\util\Map")]
     function toArray(): array {
         throw new Exception("This map cannot be converted into PHP Arrays");
     }

@@ -105,7 +105,7 @@ abstract class DataTable implements IteratorAggregate {
      * @note
      *      This transaction does not provide a return value.
      *
-     * @var int
+     * @var int = 0b00000101
      */
     const /*int*/ T_CNT = 0b00000101;
 
@@ -121,7 +121,7 @@ abstract class DataTable implements IteratorAggregate {
      *      $value = $table->transaction(DataTable::T_GET, $key);
      *      ```
      *
-     * @var int
+     * @var int = 0b00010000
      */
     const /*int*/ T_GET = 0b00010000;
 
@@ -136,7 +136,7 @@ abstract class DataTable implements IteratorAggregate {
      *      $table->transaction(DataTable::T_SET, $key, $value);
      *      ```
      *
-     * @var int
+     * @var int = 0b00100011
      */
     const /*int*/ T_SET = 0b00100011;
 
@@ -154,7 +154,7 @@ abstract class DataTable implements IteratorAggregate {
      *      }
      *      ```
      *
-     * @var int
+     * @var int = 0b00110000
      */
     const /*int*/ T_CHK = 0b00110000;
 
@@ -170,7 +170,7 @@ abstract class DataTable implements IteratorAggregate {
      *      $table->transaction(DataTable::T_DEL, $key);
      *      ```
      *
-     * @var int
+     * @var int = 0b01000001
      */
     const /*int*/ T_DEL = 0b01000001;
 
@@ -185,7 +185,7 @@ abstract class DataTable implements IteratorAggregate {
      *      $table->transaction(DataTable::T_CLR);
      *      ```
      *
-     * @var int
+     * @var int = 0b01010101
      */
     const /*int*/ T_CLR = 0b01010101;
 
@@ -202,7 +202,7 @@ abstract class DataTable implements IteratorAggregate {
      *      }
      *      ```
      *
-     * @var int
+     * @var int = 0b01100000
      */
     const /*int*/ T_LEN = 0b01100000;
 
@@ -226,7 +226,7 @@ abstract class DataTable implements IteratorAggregate {
      *      }
      *      ```
      *
-     * @var int
+     * @var int = 0b01110000
      */
     const /*int*/ T_ITR = 0b01110000;
 
@@ -236,7 +236,7 @@ abstract class DataTable implements IteratorAggregate {
      * @note
      *      This transaction will return the position/key to the specified value.
      *
-     * @var int
+     * @var int = 0b10000000
      */
     const T_LOC = 0b10000000;
 

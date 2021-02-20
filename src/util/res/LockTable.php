@@ -51,7 +51,7 @@ abstract class LockTable extends DataTable {
      *      $table->transaction(DataTable::T_SET, $key, $value);
      *      ```
      *
-     * @var int
+     * @var int = 0b00001000
      */
     const /*int*/ T_LCK = 0b00001000;
 
@@ -61,7 +61,7 @@ abstract class LockTable extends DataTable {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\res\DataTable")]
+    #[Override("im\util\res\DataTable")]
     public function transaction(int $code, mixed $key = null, mixed $value = null): mixed {
         if ($code == LockTable::T_LCK) {
             $this->mLocked = true;
@@ -79,7 +79,7 @@ abstract class LockTable extends DataTable {
      * @internal
      * @php
      */
-    #[Override("im\utils\res\DataTable")]
+    #[Override("im\util\res\DataTable")]
     public function __clone(): void {
         parent::__clone();
 

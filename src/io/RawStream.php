@@ -25,6 +25,9 @@ use im\util\Map;
 use im\util\MapArray;
 use im\exc\StreamException;
 
+use const SEEK_SET;
+use const SEEK_END;
+
 /**
  * A stream implementation that wrappes a PHP `resource`.
  *
@@ -79,7 +82,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getResource() /*resource*/ {
         return StreamWrapper::getResource($this);
     }
@@ -87,7 +90,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getFlags(): int {
         return $this->mFlags;
     }
@@ -95,7 +98,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     function getMode(): ?string {
         return $this->mMode;
     }
@@ -103,7 +106,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function isWritable(): bool {
         return ($this->mFlags & Stream::F_WRITABLE) > 0;
     }
@@ -111,7 +114,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function isReadable(): bool {
         return ($this->mFlags & Stream::F_READABLE) > 0;
     }
@@ -119,7 +122,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function isSeekable(): bool {
         return ($this->mFlags & Stream::F_SEEKABLE) > 0;
     }
@@ -127,7 +130,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getLength(): int {
         if ($this->mFlags > 0) {
             if (!empty($this->mMeta["uri"])) {
@@ -147,7 +150,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getOffset(): int {
         if ($this->mFlags > 0) {
             $pos = ftell($this->mResource);
@@ -163,7 +166,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function isEOF(): bool {
         if ($this->mFlags > 0) {
             return feof($this->mResource);
@@ -175,7 +178,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function seek(int $offset, int $whence = SEEK_SET): bool {
         if ($this->mFlags & Stream::F_SEEKABLE) {
             if ($offset < 0 && $whence == SEEK_SET) {
@@ -191,7 +194,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function rewind(): bool {
         if ($this->mFlags & Stream::F_SEEKABLE) {
             return rewind($this->mResource);
@@ -203,7 +206,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function writeFromStream(Stream $stream): int {
         $total = -1;
 
@@ -227,7 +230,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function write(string $string, bool $expand = false): int {
         if ($this->mFlags & Stream::F_WRITABLE) {
             if (!$expand) {
@@ -266,7 +269,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function read(int $length): ?string {
         if ($this->mFlags & Stream::F_READABLE) {
             $data = fread($this->mResource, $length);
@@ -282,7 +285,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function readLine(int $maxlen = -1): ?string {
         if ($this->mFlags & Stream::F_READABLE) {
             $data = fgets($this->mResource, $maxlen > 0 ? $maxlen : null);
@@ -298,7 +301,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function clear(): bool {
         if (($this->mFlags & Stream::F_WS) == Stream::F_WS) {
             return ftruncate($this->mResource, 0)
@@ -311,7 +314,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function truncate(int $size): bool {
         if (($this->mFlags & Stream::F_WS) == Stream::F_WS) {
             return ftruncate($this->mResource, $size)
@@ -324,7 +327,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function close(): void {
         if ($this->mFlags > 0) {
             if (!@fclose($this->mResource)) {
@@ -340,7 +343,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getMetadata(): MapArray {
         return new Map( $this->mMeta );
     }
@@ -348,7 +351,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function toString(): string {
         if ($this->mFlags > 0) {
             if (($this->mFlags & Stream::F_RS) == Stream::F_RS) {

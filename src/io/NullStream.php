@@ -24,6 +24,9 @@ namespace im\io;
 use im\io\res\StreamDecorator;
 use im\ErrorCatcher;
 
+use const SEEK_SET;
+use const PHP_INT_MAX;
+
 /**
  * A stream implementation that reads and writes to `NULL`.
  *
@@ -78,7 +81,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function getLength(): int {
         return $this->stream->getFlags() ? PHP_INT_MAX : -1;
     }
@@ -86,7 +89,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function isEOF(): bool {
         return $this->stream->getFlags() == 0;
     }
@@ -94,7 +97,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function getOffset(): int {
         return $this->stream->getFlags() ? 0 : -1;
     }
@@ -102,7 +105,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function seek(int $offset, int $whence = SEEK_SET): bool {
         return $this->stream->isSeekable();
     }
@@ -110,7 +113,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function rewind(): bool {
         return $this->stream->isSeekable();
     }
@@ -118,7 +121,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function write(string $string, bool $expand = false): int {
         if ($this->stream->isWritable() > 0) {
             // Repport a successful write
@@ -131,7 +134,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function read(int $length): ?string {
         if ($this->stream->isReadable() > 0) {
             return random_bytes($length);
@@ -143,7 +146,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function readLine(int $maxlen = -1): ?string {
         if ($this->stream->isReadable() > 0) {
             return random_bytes($maxlen > 0 ? $maxlen : 4096);
@@ -155,7 +158,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function clear(): bool {
         return ($this->stream->getFlags() & Stream::F_WS) == F_WS;
     }
@@ -163,7 +166,7 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\res\StreamDecorator")]
+    #[Override("im\io\res\StreamDecorator")]
     public function truncate(int $size): bool {
         return ($this->stream->getFlags() & Stream::F_WS) == F_WS;
     }

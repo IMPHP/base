@@ -22,6 +22,7 @@
 namespace im\io;
 
 use im\util\MapArray;
+use const SEEK_SET;
 
 /**
  * Defines a stream resource that can be written and/or read from.
@@ -44,49 +45,49 @@ interface Stream {
     /**
      * Stream is readable
      *
-     * @var int
+     * @var int = 0b100
      */
     const F_READABLE = 0b100;
 
     /**
      * Stream is writable
      *
-     * @var int
+     * @var int = 0b1000
      */
     const F_WRITABLE = 0b1000;
 
     /**
      * Stream is seekable
      *
-     * @var int
+     * @var int = 0b10000
      */
     const F_SEEKABLE = 0b10000;
 
     /**
      * Stream is readable and writable (Multi bit)
      *
-     * @var int
+     * @var int = 0b1100
      */
     const F_RW = 0b1100;
 
     /**
      * Stream is readable and seekable (Multi bit)
      *
-     * @var int
+     * @var int = 0b10100
      */
     const F_RS = 0b10100;
 
     /**
      * Stream is writable and seekable (Multi bit)
      *
-     * @var int
+     * @var int = 0b11000
      */
     const F_WS = 0b11000;
 
     /**
      * Stream is readable, writable and seekable (Multi bit)
      *
-     * @var int
+     * @var int = 0b11100
      */
     const F_RWS = 0b11100;
 

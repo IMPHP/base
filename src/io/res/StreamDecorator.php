@@ -25,6 +25,8 @@ use im\util\Map;
 use im\io\Stream;
 use im\io\StreamWrapper;
 
+use const SEEK_SET;
+
 /**
  * Provides implementation for `im\io\Stream`.
  *
@@ -58,7 +60,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getResource() /*resource*/ {
         return StreamWrapper::getResource($this);
     }
@@ -66,7 +68,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getFlags(): int {
         return $this->stream->getFlags();
     }
@@ -74,7 +76,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     function getMode(): ?string {
         return $this->stream->getMode();
     }
@@ -82,7 +84,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function isWritable(): bool {
         return $this->stream->isWritable();
     }
@@ -90,7 +92,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function isReadable(): bool {
         return $this->stream->isReadable();
     }
@@ -98,7 +100,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function isSeekable(): bool {
         return $this->stream->isSeekable();
     }
@@ -106,7 +108,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getLength(): int {
         return $this->stream->getLength();
     }
@@ -114,7 +116,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getOffset(): int {
         return $this->stream->getOffset();
     }
@@ -122,7 +124,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function isEOF(): bool {
         return $this->stream->isEOF();
     }
@@ -130,7 +132,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function seek(int $offset, int $whence = SEEK_SET): bool {
         return $this->stream->seek($offset, $whence);
     }
@@ -138,7 +140,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function rewind(): bool {
         return $this->stream->rewind();
     }
@@ -146,7 +148,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function writeFromStream(Stream $stream): int {
         return $this->stream->writeFromStream($stream);
     }
@@ -154,7 +156,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function write(string $string, bool $expand = false): int {
         return $this->stream->write($string, $expand);
     }
@@ -162,7 +164,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function read(int $length): ?string {
         return $this->stream->read($length);
     }
@@ -170,7 +172,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function readLine(int $maxlen = -1): ?string {
         return $this->stream->readLine($maxlen);
     }
@@ -178,7 +180,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function clear(): bool {
         return $this->stream->clear();
     }
@@ -186,7 +188,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function truncate(int $size): bool {
         return $this->stream->truncate($size);
     }
@@ -194,7 +196,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function getMetadata(): Map {
         return $this->stream->getMetadata();
     }
@@ -202,7 +204,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function close(): void {
         $this->stream->close();
     }
@@ -210,7 +212,7 @@ trait StreamDecorator {
     /**
      * @inheritDoc
      */
-    #[Override("im\stream\Stream")]
+    #[Override("im\io\Stream")]
     public function toString(): string {
         return $this->stream->toString();
     }

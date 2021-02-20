@@ -22,6 +22,7 @@
 namespace im\io;
 
 use im\exc\StreamException;
+use const SEEK_SET;
 
 /*
  * Register this wrapper

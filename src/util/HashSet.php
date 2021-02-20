@@ -123,7 +123,7 @@ class HashSet extends Set {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\Collection")]
+    #[Override("im\util\Collection")]
     function copy(callable $sort = null): static {
         $new = clone $this;
 
@@ -146,7 +146,7 @@ class HashSet extends Set {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\Collection")]
+    #[Override("im\util\Collection")]
     public function getIterator(): Traversable {
         foreach ($this->mData as $key => $value) {
             yield $key;

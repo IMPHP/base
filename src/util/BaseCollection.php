@@ -93,7 +93,7 @@ abstract class BaseCollection implements Collection {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\Collection")]
+    #[Override("im\util\Collection")]
     function clear(): void {
         $this->mData->transaction(DataTable::T_CLR);
     }
@@ -101,7 +101,7 @@ abstract class BaseCollection implements Collection {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\Collection")]
+    #[Override("im\util\Collection")]
     function length(): int {
         return $this->mData->transaction(DataTable::T_LEN);
     }
@@ -109,7 +109,7 @@ abstract class BaseCollection implements Collection {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\Collection")]
+    #[Override("im\util\Collection")]
     function toArray(): array {
         $array = [];
 
@@ -123,7 +123,7 @@ abstract class BaseCollection implements Collection {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\Collection")]
+    #[Override("im\util\Collection")]
     function copy(callable $sort = null): static {
         $new = clone $this;
 
@@ -143,9 +143,10 @@ abstract class BaseCollection implements Collection {
     }
 
     /**
-     * @inheritDoc
+     * @internal
+     * @php
      */
-    #[Override("im\utils\Collection")]
+    #[Override("im\util\Collection")]
     public function getIterator(): Traversable {
         return $this->mData->transaction(DataTable::T_ITR);
     }

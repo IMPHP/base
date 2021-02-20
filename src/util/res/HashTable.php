@@ -27,7 +27,7 @@ use Traversable;
  * Extension to `DataTable` that allows using multiple data types as key.
  *
  * This DataTable extenstion enables key hashing, allowing the usage of
- * other data types as keys. Normally only `string` and `int` is allowed. 
+ * other data types as keys. Normally only `string` and `int` is allowed.
  */
 abstract class HashTable extends LockTable {
 
@@ -49,7 +49,7 @@ abstract class HashTable extends LockTable {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\res\DataTable")]
+    #[Override("im\util\res\DataTable")]
     public function transaction(int $code, mixed $key = null, mixed $value = null): mixed {
         $HashKey = $key != null ? $this->hash($key) : null;
         $result = parent::transaction($code, $HashKey, $value);

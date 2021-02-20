@@ -13,7 +13,7 @@ Along with the above sub-packages, the base package also has a few of it's own c
 
 ### Full Documentation
 
-You can view the [Full Documentation](docs/Base.md) to lean more about what this offers.
+You can view the [Full Documentation](docs/base.md) to lean more about what this offers.
 
 ### Installation
 
