@@ -282,8 +282,8 @@ abstract class DataTable implements IteratorAggregate {
         $result = null;
 
         if ($code & 0b1) {
-            if ((($code & 0b110) == 2 && !isset($this->mData[$key]))
-                    || (($code & 0b110) == 0 && isset($this->mData[$key]))) {
+            if ((($code & 0b110) == 2 && !array_key_exists($key, $this->mData))
+                    || (($code & 0b110) == 0 && array_key_exists($key, $this->mData))) {
 
                 $this->mLength += $code & 0b10 ? 1 : -1;
             }
@@ -306,7 +306,7 @@ abstract class DataTable implements IteratorAggregate {
         } else {
             switch ($code) {
                 case DataTable::T_GET: $result = $this->mData[$key] ?? null; break;
-                case DataTable::T_CHK: $result = isset($this->mData[$key]); break;
+                case DataTable::T_CHK: $result = array_key_exists($key, $this->mData); break;
                 case DataTable::T_LEN: $result = $this->mLength; break;
                 case DataTable::T_LOC:
                                         $result = array_search($value, $this->mData, true);
