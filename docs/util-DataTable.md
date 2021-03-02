@@ -26,6 +26,7 @@ abstract class DataTable implements IteratorAggregate, Traversable {
     // Constants
     public int T_CNT = 0b00000101
     public int T_GET = 0b00010000
+    public int T_RPL = 0b00010011
     public int T_SET = 0b00100011
     public int T_CHK = 0b00110000
     public int T_DEL = 0b01000001
@@ -44,6 +45,7 @@ abstract class DataTable implements IteratorAggregate, Traversable {
 | :--- | :---------- |
 | [__DataTable&nbsp;::&nbsp;T\_CNT__](util-DataTable-prop_T_CNT.md) | Re-sync dataset length |
 | [__DataTable&nbsp;::&nbsp;T\_GET__](util-DataTable-prop_T_GET.md) | Get a value from the dataset |
+| [__DataTable&nbsp;::&nbsp;T\_RPL__](util-DataTable-prop_T_RPL.md) | Replace a value in the dataset |
 | [__DataTable&nbsp;::&nbsp;T\_SET__](util-DataTable-prop_T_SET.md) | Set a value in the dataset |
 | [__DataTable&nbsp;::&nbsp;T\_CHK__](util-DataTable-prop_T_CHK.md) | Check to see if a key exists |
 | [__DataTable&nbsp;::&nbsp;T\_DEL__](util-DataTable-prop_T_DEL.md) | Remove a key from the dataset |

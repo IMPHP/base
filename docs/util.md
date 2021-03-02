@@ -21,6 +21,9 @@ Small utility package that is bundled with IMPHP Base.
 | [IndexArray](util-IndexArray.md) | Defines an interface for a indexed array |
 | [MapArray](util-MapArray.md) | Defines an interface for a mapped array |
 | [ArgV](util-ArgV.md) | This class provides a unified API to deal with shell arguments (argv) |
+| [Stackable](util-Stackable.md) | Defines a basic stackable class |
+| [Stack](util-Stack.md) | This stack-able pushes values to the top while also popping them from the top |
+| [Queue](util-Queue.md) | This stack-able pushes values to the top while popping them from the bottom |
 | [DataTable](util-DataTable.md) | This is a light absstraction to dealing with a PHP array |
 | [LockTable](util-LockTable.md) | Extension to `DataTable` that enables immutability |
 | [HashTable](util-HashTable.md) | Extension to `DataTable` that allows using multiple data types as key |

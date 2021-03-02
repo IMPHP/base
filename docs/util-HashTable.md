@@ -16,6 +16,7 @@ abstract class HashTable extends im\util\res\LockTable implements IteratorAggreg
     public int T_LCK = 0b00001000
     public int T_CNT = 0b00000101
     public int T_GET = 0b00010000
+    public int T_RPL = 0b00010011
     public int T_SET = 0b00100011
     public int T_CHK = 0b00110000
     public int T_DEL = 0b01000001
@@ -35,6 +36,7 @@ abstract class HashTable extends im\util\res\LockTable implements IteratorAggreg
 | [__HashTable&nbsp;::&nbsp;T\_LCK__](util-HashTable-prop_T_LCK.md) | Lock the dataset to make it immutable |
 | [__HashTable&nbsp;::&nbsp;T\_CNT__](util-HashTable-prop_T_CNT.md) | Re-sync dataset length |
 | [__HashTable&nbsp;::&nbsp;T\_GET__](util-HashTable-prop_T_GET.md) | Get a value from the dataset |
+| [__HashTable&nbsp;::&nbsp;T\_RPL__](util-HashTable-prop_T_RPL.md) | Replace a value in the dataset |
 | [__HashTable&nbsp;::&nbsp;T\_SET__](util-HashTable-prop_T_SET.md) | Set a value in the dataset |
 | [__HashTable&nbsp;::&nbsp;T\_CHK__](util-HashTable-prop_T_CHK.md) | Check to see if a key exists |
 | [__HashTable&nbsp;::&nbsp;T\_DEL__](util-HashTable-prop_T_DEL.md) | Remove a key from the dataset |

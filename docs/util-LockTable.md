@@ -23,6 +23,7 @@ abstract class LockTable extends im\util\res\DataTable implements Traversable, I
     // Inherited Constants
     public int T_CNT = 0b00000101
     public int T_GET = 0b00010000
+    public int T_RPL = 0b00010011
     public int T_SET = 0b00100011
     public int T_CHK = 0b00110000
     public int T_DEL = 0b01000001
@@ -42,6 +43,7 @@ abstract class LockTable extends im\util\res\DataTable implements Traversable, I
 | [__LockTable&nbsp;::&nbsp;T\_LCK__](util-LockTable-prop_T_LCK.md) | Lock the dataset to make it immutable |
 | [__LockTable&nbsp;::&nbsp;T\_CNT__](util-LockTable-prop_T_CNT.md) | Re-sync dataset length |
 | [__LockTable&nbsp;::&nbsp;T\_GET__](util-LockTable-prop_T_GET.md) | Get a value from the dataset |
+| [__LockTable&nbsp;::&nbsp;T\_RPL__](util-LockTable-prop_T_RPL.md) | Replace a value in the dataset |
 | [__LockTable&nbsp;::&nbsp;T\_SET__](util-LockTable-prop_T_SET.md) | Set a value in the dataset |
 | [__LockTable&nbsp;::&nbsp;T\_CHK__](util-LockTable-prop_T_CHK.md) | Check to see if a key exists |
 | [__LockTable&nbsp;::&nbsp;T\_DEL__](util-LockTable-prop_T_DEL.md) | Remove a key from the dataset |

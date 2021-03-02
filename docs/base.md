@@ -9,6 +9,7 @@ Base package for IMPHP containing some core classes and packages.
 | :--- | :---------- |
 | [Utilities](util.md) | Small utility package that is bundled with IMPHP Base |
 | [I/O](io.md) | Small IO package that is bundled with IMPHP Base |
+| [Debug](debug.md) | A sub-package with some basic debug features |
 
 ## Classes
 | Name | Description |
