@@ -126,6 +126,21 @@ abstract class DataTable implements IteratorAggregate {
     const /*int*/ T_GET = 0b00010000;
 
     /**
+     * Replace a value in the dataset.
+     *
+     * @note
+     *      This transaction will return the current value, if any.
+     *
+     * @example
+     *      ```php
+     *      $oldValue = $table->transaction(DataTable::T_RPL, $key, $newValue);
+     *      ```
+     *
+     * @var int = 0b00010011
+     */
+    const /*int*/ T_RPL = 0b00010011;
+
+    /**
      * Set a value in the dataset.
      *
      * @note
@@ -276,7 +291,12 @@ abstract class DataTable implements IteratorAggregate {
             switch ($code) {
                 case DataTable::T_SET: $this->mData[$key] = $value; break;
                 case DataTable::T_DEL: unset($this->mData[$key]); break;
-                case DataTable::T_CLR: $this->mData = [];
+                case DataTable::T_CLR: $this->mData = []; break;
+                case DataTable::T_RPL:
+                                        $result = $this->mData[$key] ?? null;
+                                        $this->mData[$key] = $value;
+
+                                        break;
             }
 
             if ($code & 0b100) {
