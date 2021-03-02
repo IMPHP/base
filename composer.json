@@ -3,7 +3,6 @@
     "license": "MIT",
     "description": "Basic tools used by IMPHP components",
     "type": "library",
-    "version": "1.0.0",
 
     "authors": [
         {
