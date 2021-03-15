@@ -77,6 +77,21 @@ abstract class BaseCollection implements Collection {
     }
 
     /**
+     * @php
+     */
+    public function __serialize(): array {
+        return $this->mData->__serialize();
+    }
+
+    /**
+     * @php
+     */
+    public function __unserialize(array $data): void {
+        $this->mData = $this->createDataTable();
+        $this->mData->__unserialize($data);
+    }
+
+    /**
      * @internal
      */
     protected function createDataTable(): DataTable {

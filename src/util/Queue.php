@@ -46,12 +46,35 @@ class Queue extends Stackable {
 
     /**
      * @param $capacity
-     *      Set the initializesd capacity. 
+     *      Set the initializesd capacity.
      */
     public function __construct(int $capacity = 0) {
         parent::__construct();
 
         $this->capacity = $capacity < 100 ? 100 : $capacity;
+    }
+
+    /**
+     * @php
+     */
+    public function __serialize(): array {
+        return [
+            "data" => $this->mData->__serialize(),
+            "length" => $this->length,
+            "offset" => $this->offset,
+            "capacity" => $this->capacity
+        ];
+    }
+
+    /**
+     * @php
+     */
+    public function __unserialize(array $data): void {
+        parent::__unserialize($data["data"] ?? []);
+
+        $this->length = $data["length"] ?? 0;
+        $this->offset = $data["offset"] ?? 0;
+        $this->capacity = $data["capacity"] ?? 0;
     }
 
     /**

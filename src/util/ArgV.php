@@ -60,6 +60,30 @@ class ArgV {
     protected string $mExecPath;
 
     /**
+     * @php
+     */
+    public function __serialize(): array {
+        return [
+            "options" => $this->mOptions,
+            "operands" => $this->mOperands,
+            "flags" => $this->mFlags,
+            "execFile" => $this->mExecFile,
+            "execPath" => $this->mExecPath
+        ];
+    }
+
+    /**
+     * @php
+     */
+    public function __unserialize(array $data): void {
+        $this->mOptions = $data["options"] ?? [];
+        $this->mOperands = $data["operands"] ?? [];
+        $this->mFlags = $data["flags"] ?? [];
+        $this->mExecFile = $data["execFile"] ?? "";
+        $this->mExecPath = $data["execPath"] ?? "";
+    }
+
+    /**
      * @param $args
      *      Optional argv. Defaults to PHP's $argv.
      *

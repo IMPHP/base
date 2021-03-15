@@ -55,7 +55,7 @@ abstract class HashTable extends LockTable {
         $result = parent::transaction($code, $HashKey, $value);
 
         switch ($code) {
-            case DataTable::T_RPL: 
+            case DataTable::T_RPL:
             case DataTable::T_SET: $this->mKeys[$HashKey] = $key; break;
             case DataTable::T_DEL: unset($this->mKeys[$HashKey]); break;
             case DataTable::T_CLR: $this->mKeys = []; break;
@@ -75,5 +75,22 @@ abstract class HashTable extends LockTable {
         }
 
         return $result;
+    }
+
+    /**
+     * @php
+     */
+    public function __serialize(): array {
+        $data = parent::__serialize();
+        $data["keys"] = $this->mKeys;
+    }
+
+    /**
+     * @php
+     */
+    public function __unserialize(array $data): void {
+        parent::__unserialize($data);
+
+        $this->mKeys = $data["keys"] ?? [];
     }
 }

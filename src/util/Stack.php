@@ -25,7 +25,7 @@ use im\util\res\DataTable;
 
 /**
  * This stack-able pushes values to the top while
- * also popping them from the top. 
+ * also popping them from the top.
  *
  * @note
  *      The iterator in this class will pop all returned values.
@@ -37,6 +37,25 @@ class Stack extends Stackable {
 
     /** @internal */
     protected int $length = 0;
+
+    /**
+     * @php
+     */
+    public function __serialize(): array {
+        return [
+            "data" => $this->mData->__serialize(),
+            "length" => $this->length
+        ];
+    }
+
+    /**
+     * @php
+     */
+    public function __unserialize(array $data): void {
+        parent::__unserialize($data["data"] ?? []);
+
+        $this->length = $data["length"] ?? 0;
+    }
 
     /**
      * @inheritDoc

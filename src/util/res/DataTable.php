@@ -345,4 +345,19 @@ abstract class DataTable implements IteratorAggregate {
     public function __clone(): void {
 
     }
+
+    /**
+     * @php
+     */
+    public function __serialize(): array {
+        return $this->mData;
+    }
+
+    /**
+     * @php
+     */
+    public function __unserialize(array $data): void {
+        $this->mData = $data;
+        $this->mLength = count($data);
+    }
 }

@@ -61,7 +61,29 @@ abstract class Stackable implements Collection {
      *
      */
     public function __construct() {
-        $this->data = new class() extends DataTable {};
+        $this->data = $this->createDataTable();
+    }
+
+    /**
+     * @php
+     */
+    public function __serialize(): array {
+        return $this->mData->__serialize();
+    }
+
+    /**
+     * @php
+     */
+    public function __unserialize(array $data): void {
+        $this->mData = $this->createDataTable();
+        $this->mData->__unserialize($data);
+    }
+
+    /**
+     * @internal
+     */
+    protected function createDataTable(): DataTable {
+        return new class() extends DataTable {};
     }
 
     /**

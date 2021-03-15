@@ -86,4 +86,25 @@ abstract class LockTable extends DataTable {
         // Unlock cloned table
         $this->mLocked = false;
     }
+
+    /**
+     * @php
+     */
+    public function __serialize(): array {
+        return [
+            "locked" => $this->mLocked,
+            "data" => parent::__serialize()
+        ];
+    }
+
+    /**
+     * @php
+     */
+    public function __unserialize(array $data): void {
+        parent::__unserialize($data["data"] ?? []);
+
+        if ($data["locked"] ?? false) {
+            $this->mLocked = true;
+        }
+    }
 }
