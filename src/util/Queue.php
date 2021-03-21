@@ -176,6 +176,18 @@ class Queue extends Stackable {
      * @inheritDoc
      */
     #[Override("im\util\Stackable")]
+    public function get(): mixed {
+        if ($this->length > 0) {
+            return $this->data->transaction(DataTable::T_GET, $this->offset);
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Stackable")]
     public function clear(): void {
         $this->data->transaction(DataTable::T_CLR);
         $this->length = 0;

@@ -91,6 +91,18 @@ class Stack extends Stackable {
      * @inheritDoc
      */
     #[Override("im\util\Stackable")]
+    public function get(): mixed {
+        if ($this->length > 0) {
+            return $this->data->transaction(DataTable::T_GET, $this->length - 1);
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Stackable")]
     public function copy(callable $sort = null): static {
         $new = clone $this;
 
