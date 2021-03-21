@@ -23,4 +23,4 @@ public run(callable $callable): mixed
 ## Return
 Returns the value that was returned from the callable or `NULL`
 if it failed due to an error. You can check `getException`
-to see if there was an error. 
+to see if there was an error.

@@ -10,4 +10,4 @@ public __construct(int $capacity = 0)
 ## Parameters
 | Name | Description |
 | :--- | :---------- |
-| capacity | Set the initializesd capacity.  |
+| capacity | Set the initializesd capacity. |

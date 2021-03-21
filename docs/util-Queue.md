@@ -16,6 +16,7 @@ class Queue extends im\util\Stackable implements IteratorAggregate, Traversable,
     public __construct(int $capacity = 0)
     public push(mixed $value): void
     public pop(): mixed
+    public get(): mixed
     public clear(): void
     public length(): int
     public toArray(): array
@@ -32,6 +33,7 @@ class Queue extends im\util\Stackable implements IteratorAggregate, Traversable,
 | [__Queue&nbsp;::&nbsp;\_\_construct__](util-Queue-__construct.md) |  |
 | [__Queue&nbsp;::&nbsp;push__](util-Queue-push.md) | Push a new value into this stackable instance |
 | [__Queue&nbsp;::&nbsp;pop__](util-Queue-pop.md) | Pop a value off of this stackable instance |
+| [__Queue&nbsp;::&nbsp;get__](util-Queue-get.md) | Returns the current value in the stack |
 | [__Queue&nbsp;::&nbsp;clear__](util-Queue-clear.md) | Clear the collection |
 | [__Queue&nbsp;::&nbsp;length__](util-Queue-length.md) | Get the current length of the collection |
 | [__Queue&nbsp;::&nbsp;toArray__](util-Queue-toArray.md) | Builds a PHP array containing all of the current values within the collection |

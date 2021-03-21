@@ -16,6 +16,7 @@ abstract class Stackable implements im\util\Collection, Traversable, IteratorAgg
     // Methods
     abstract public push(mixed $value): void
     abstract public pop(): mixed
+    abstract public get(): mixed
     public __construct()
     public toArray(): array
     public equals(object $other): bool
@@ -32,6 +33,7 @@ abstract class Stackable implements im\util\Collection, Traversable, IteratorAgg
 | :--- | :---------- |
 | [__Stackable&nbsp;::&nbsp;push__](util-Stackable-push.md) | Push a new value into this stackable instance |
 | [__Stackable&nbsp;::&nbsp;pop__](util-Stackable-pop.md) | Pop a value off of this stackable instance |
+| [__Stackable&nbsp;::&nbsp;get__](util-Stackable-get.md) | Returns the current value in the stack |
 | [__Stackable&nbsp;::&nbsp;\_\_construct__](util-Stackable-__construct.md) |  |
 | [__Stackable&nbsp;::&nbsp;toArray__](util-Stackable-toArray.md) | Builds a PHP array containing all of the current values within the collection |
 | [__Stackable&nbsp;::&nbsp;equals__](util-Stackable-equals.md) | Compare an object against this instance |

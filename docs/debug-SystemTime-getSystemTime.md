@@ -3,7 +3,7 @@
 ____
 
 ## Description
-Get the average system time. 
+Get the average system time.
 
 ## Synopsis
 ```php

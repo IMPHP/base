@@ -4,6 +4,15 @@ ____
 ## Description
 Small utility package that is bundled with IMPHP Base.
 
+## Interfaces
+| Name | Description |
+| :--- | :---------- |
+| [Collection](util-Collection.md) | Defines a base collection interface |
+| [StringableBuilder](util-StringableBuilder.md) | Defines a simple string builder |
+| [ListArray](util-ListArray.md) | Defines an interface for a list array |
+| [IndexArray](util-IndexArray.md) | Defines an interface for a indexed array |
+| [MapArray](util-MapArray.md) | Defines an interface for a mapped array |
+
 ## Classes
 | Name | Description |
 | :--- | :---------- |
@@ -13,13 +22,8 @@ Small utility package that is bundled with IMPHP Base.
 | [Set](util-Set.md) | An implementation of the `ListArray` interface |
 | [HashSet](util-HashSet.md) | A much faster `Set` to be used when you have a lot of data |
 | [BaseCollection](util-BaseCollection.md) | An abstract implementation of the `Collection` interface |
-| [Collection](util-Collection.md) | Defines a base collection interface |
-| [StringableBuilder](util-StringableBuilder.md) | Defines a simple string builder |
 | [StringBuilder](util-StringBuilder.md) | An implementation of the `StringableBuilder` interface with additional features |
 | [Struct](util-Struct.md) | An extended stdClass-like class  The major purpose with this class, is to provide a better interface to be used as a replacement for PHP's stdClass |
-| [ListArray](util-ListArray.md) | Defines an interface for a list array |
-| [IndexArray](util-IndexArray.md) | Defines an interface for a indexed array |
-| [MapArray](util-MapArray.md) | Defines an interface for a mapped array |
 | [ArgV](util-ArgV.md) | This class provides a unified API to deal with shell arguments (argv) |
 | [Stackable](util-Stackable.md) | Defines a basic stackable class |
 | [Stack](util-Stack.md) | This stack-able pushes values to the top while also popping them from the top |

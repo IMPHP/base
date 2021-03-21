@@ -18,4 +18,4 @@ public insert(int $key, mixed $value): void
 | Name | Description |
 | :--- | :---------- |
 | key | The key to insert into. |
-| value | The value to insert.  |
+| value | The value to insert. |
