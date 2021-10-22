@@ -240,13 +240,15 @@ class RawStream implements Stream {
                     return $bytes;
                 }
 
-            } else if ($this->mFlags & Stream::F_SEEKABLE) {
+            } else if ($this->mFlags & Stream::F_SEEKABLE
+                        && $this->mFlags & Stream::F_READABLE) {
+
                 $pos = ftell($this->mResource);
                 $tmpres = fopen('php://temp', 'r+');
 
                 stream_copy_to_stream($this->mResource, $tmpres);
                 fseek($this->mResource, $pos, SEEK_SET);
-                fseek($tmpResource, 0, SEEK_SET);
+                fseek($tmpres, 0, SEEK_SET);
 
                 $bytes = fwrite($this->mResource, $string);
 
