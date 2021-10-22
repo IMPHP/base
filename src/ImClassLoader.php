@@ -208,7 +208,9 @@ final class ImClassLoader implements ClassLoader {
      */
     public function addBasePath(string $path): void {
         if (is_dir($path)) {
-            $path = realpath($path);
+            if (($realpath = realpath($path)) !== FALSE) {
+                $path = $realpath;
+            }
 
             if (!in_array($path, $this->mBasePaths)) {
                 $this->mBasePaths[] = $path;
@@ -224,7 +226,6 @@ final class ImClassLoader implements ClassLoader {
      */
     #[Override("im\ClassLoader")]
     function findClass(string $class): ?string {
-
         /* Start by looking in the static class maps
          */
         foreach ($this->mClassMaps as [$basePath, $map]) {
