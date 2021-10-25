@@ -123,7 +123,13 @@ class StreamWrapper /* implements \StreamWrapper */ {
      * @php
      */
     public function stream_write(string $data): int {
-        return $this->mStream->write($data);
+        $ret = $this->mStream->write($data);
+
+        if ($ret < 0) {
+            return 0;
+        }
+
+        return $ret;
     }
 
     /**
@@ -131,7 +137,7 @@ class StreamWrapper /* implements \StreamWrapper */ {
      * @php
      */
     public function stream_read(int $count): string {
-        return $this->mStream->read($count);
+        return $this->mStream->read($count) ?? "";
     }
 
     /**
@@ -147,7 +153,13 @@ class StreamWrapper /* implements \StreamWrapper */ {
      * @php
      */
     public function stream_tell(): int {
-        return $this->mStream->getOffset();
+        $ret = $this->mStream->getOffset();
+
+        if ($ret < 0) {
+            return 0;
+        }
+
+        return $ret;
     }
 
     /**
