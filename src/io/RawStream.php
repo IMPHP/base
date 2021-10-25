@@ -24,6 +24,7 @@ namespace im\io;
 use im\util\Map;
 use im\util\MapArray;
 use im\exc\StreamException;
+use im\ErrorCatcher;
 
 use const SEEK_SET;
 use const SEEK_END;
@@ -57,6 +58,9 @@ class RawStream implements Stream {
     /** @internal */
     protected array $mMeta;
 
+    /** @internal */
+    protected ErrorCatcher $mCatcher;
+
     /**
      * @param resource $res
      *      A PHP resource to use.
@@ -77,6 +81,7 @@ class RawStream implements Stream {
         $this->mResource = $res;
         $this->mMeta = $meta;
         $this->mMode = $meta["mode"];
+        $this->mCatcher = new ErrorCatcher(FALSE);
     }
 
     /**
@@ -208,23 +213,24 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function writeFromStream(Stream $stream): int {
-        $total = -1;
-
         if ($stream->getFlags() & Stream::F_READABLE
                 && $this->mFlags & Stream::F_WRITABLE) {
 
-            while (($bytes = $stream->read(4096)) !== null) {
-                $wc = fwrite($this->mResource, $bytes);
+            $source = $stream->getResource();
+            $target = $this->mResource;
+            $bytes = $this->mCatcher->run(function() use ($resource, $source) {
+                return stream_copy_to_stream($source, $target);
+            });
 
-                if ($bytes < 0 || $bytes !== strlen($bytes)) {
-                    break;
-                }
+            if ($this->mCatcher->getException() != null) {
+                throw $this->mCatcher->getException();
 
-                $total += $wc;
+            } else if ($bytes !== false) {
+                return $bytes;
             }
         }
 
-        return $total;
+        return -1;
     }
 
     /**
@@ -233,35 +239,50 @@ class RawStream implements Stream {
     #[Override("im\io\Stream")]
     public function write(string $string, bool $expand = false): int {
         if ($this->mFlags & Stream::F_WRITABLE) {
-            if (!$expand) {
-                $bytes = fwrite($this->mResource, $string);
+            $resource = $this->mResource;
+            $bytes = -1;
 
-                if ($bytes !== false) {
-                    return $bytes;
-                }
+            if (!$expand) {
+                $bytes = $this->mCatcher->run(function() use ($resource, &$string) {
+                    return fwrite($this->mResource, $string);
+                });
 
             } else if ($this->mFlags & Stream::F_SEEKABLE
                         && $this->mFlags & Stream::F_READABLE) {
 
-                $pos = ftell($this->mResource);
-                $tmpres = fopen('php://temp', 'r+');
+                $bytes = $this->mCatcher->run(function() use ($resource, &$string) {
+                    $pos = ftell($this->mResource);
+                    $tmpres = fopen('php://temp', 'r+');
 
-                stream_copy_to_stream($this->mResource, $tmpres);
-                fseek($this->mResource, $pos, SEEK_SET);
-                fseek($tmpres, 0, SEEK_SET);
+                    if (is_resource($tmpres)
+                            && stream_copy_to_stream($this->mResource, $tmpres) !== FALSE) {
 
-                $bytes = fwrite($this->mResource, $string);
+                        fseek($this->mResource, $pos, SEEK_SET);
+                        fseek($tmpres, 0, SEEK_SET);
 
-                try {
-                    if ($bytes !== false) {
-                        stream_copy_to_stream($tmpres, $this->mResource);
+                        $bytes = fwrite($this->mResource, $string);
 
-                        return $bytes;
+                        try {
+                            if ($bytes !== false) {
+                                stream_copy_to_stream($tmpres, $this->mResource);
+
+                                return $bytes;
+                            }
+
+                        } finally {
+                            fclose($tmpres);
+                        }
                     }
 
-                } finally {
-                    fclose($tmpres);
-                }
+                    return -1;
+                });
+            }
+
+            if ($this->mCatcher->getException() != null) {
+                throw $this->mCatcher->getException();
+
+            } else if ($bytes !== false) {
+                return $bytes;
             }
         }
 
@@ -274,11 +295,30 @@ class RawStream implements Stream {
     #[Override("im\io\Stream")]
     public function read(int $length): ?string {
         if ($this->mFlags & Stream::F_READABLE) {
-            $data = fread($this->mResource, $length);
+            $resource = $this->mResource;
 
-            if ($data !== false) {
-                return $data;
+            do {
+                $data = $this->mCatcher->run(function() use ($resource, $length) {
+                    $data = fread($resource, $length);
+
+                    if (!empty($data)) {
+                        return $data;
+                    }
+
+                    return null;
+                });
+
+                if ($data != null) {
+                    break;
+                }
+
+            } while (!feof($this->mResource));
+
+            if ($this->mCatcher->getException() != null) {
+                throw $this->mCatcher->getException();
             }
+
+            return $data;
         }
 
         return null;
@@ -290,9 +330,30 @@ class RawStream implements Stream {
     #[Override("im\io\Stream")]
     public function readLine(int $maxlen = -1): ?string {
         if ($this->mFlags & Stream::F_READABLE) {
-            $data = fgets($this->mResource, $maxlen > 0 ? $maxlen : null);
+            $resource = $this->mResource;
 
-            if ($data !== false) {
+            do {
+                $data = $this->mCatcher->run(function() use ($resource, $maxlen) {
+                    $data = fgets($resource, $maxlen > 0 ? $maxlen : null);
+
+                    if (!empty($data)) {
+                        return $data;
+                    }
+
+                    return null;
+                });
+
+                if ($data != null) {
+                    break;
+                }
+
+            } while (!feof($this->mResource));
+
+            if ($this->mCatcher->getException() != null) {
+                throw $this->mCatcher->getException();
+            }
+
+            if ($data != null) {
                 return strrpos($data, "\n", -1) !== false ? substr($data, 0, -1) : $data;
             }
         }
@@ -332,10 +393,13 @@ class RawStream implements Stream {
     #[Override("im\io\Stream")]
     public function close(): void {
         if ($this->mFlags > 0) {
-            if (!@fclose($this->mResource)) {
-                // Pipe Resource
-                @pclose($this->mResource);
-            }
+            $resource = $this->mResource;
+            $this->mCatcher->run(function() use ($resource) {
+                if (!fclose($resource)) {
+                    // Pipe Resource
+                    pclose($resource);
+                }
+            });
 
             $this->mFlags = 0;
             $this->mMeta = [];
