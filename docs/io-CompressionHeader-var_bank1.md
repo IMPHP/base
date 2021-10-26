@@ -5,7 +5,6 @@ ____
 ## Description
 Stores the SQSync signature.
 
-|--------|--------|------------------|
 | Offset | Length | Data             |
 |--------|--------|------------------|
 | 0      | 4      | \xBB\x8A\x8E\xAB |

@@ -5,7 +5,6 @@ ____
 ## Description
 Stores the uncompressed content data length.
 
-|--------|--------|----------------------------------|
 | Offset | Length | Default Data                     |
 |--------|--------|----------------------------------|
 | 10     | 8      | \x00\x00\x00\x00\x00\x00\x00\x00 |

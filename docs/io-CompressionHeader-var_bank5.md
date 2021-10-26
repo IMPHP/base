@@ -5,7 +5,6 @@ ____
 ## Description
 Stores the length of the additional header space.
 
-|--------|--------|------------------|
 | Offset | Length | Default Data     |
 |--------|--------|------------------|
 | 18     | 4      | \x00\x00\x00\x00 |

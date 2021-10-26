@@ -5,7 +5,6 @@ ____
 ## Description
 Stores the algorithm signature.
 
-|--------|--------|------------------|
 | Offset | Length | Default Data     |
 |--------|--------|------------------|
 | 4      | 2      | \x00\x00         |

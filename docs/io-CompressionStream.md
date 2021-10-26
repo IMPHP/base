@@ -4,8 +4,18 @@ ____
 
 ## Description
 Defines a stream resource with compression features.
+Any compression stream implementation must apply a specific header to the beginning of the stream.
 
- > Any compression stream implementation must apply a specific header to the beginning of the stream.<br /><br />|----------|------------------------------------|---------------------------| | 4 bytes  | \xBB\x8A\x8E\xAB                   | SQSync Signature          | | 2 bytes  |                                    | Algo Signature            | | 4 bytes  |                                    | Algo Reserved             | | 8 bytes  | \x00\x00\x00\x00\x00\x00\x00\x00   | Uncompressed Data length  | | 4 bytes  | \x00\x00\x00\x00                   | Additional header length  | | * bytes  |                                    | Additional header content |<br /><br />The additional header can be set by using the `allocHeader()` and `writeHeader()` methods.  
+| Length   | -                                  | Description               |
+|----------|------------------------------------|---------------------------|
+| 4 bytes  | \xBB\x8A\x8E\xAB                   | SQSync Signature          |
+| 2 bytes  |                                    | Algo Signature            |
+| 4 bytes  |                                    | Algo Reserved             |
+| 8 bytes  | \x00\x00\x00\x00\x00\x00\x00\x00   | Uncompressed Data length  |
+| 4 bytes  | \x00\x00\x00\x00                   | Additional header length  |
+| * bytes  |                                    | Additional header content |
+
+The additional header can be set by using the `allocHeader()` and `writeHeader()` methods.
 
 ## Synopsis
 ```php

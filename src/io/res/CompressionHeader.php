@@ -50,7 +50,6 @@ class CompressionHeader {
     /**
      * Stores the SQSync signature.
      *
-     * |--------|--------|------------------|
      * | Offset | Length | Data             |
      * |--------|--------|------------------|
      * | 0      | 4      | \xBB\x8A\x8E\xAB |
@@ -60,7 +59,6 @@ class CompressionHeader {
     /**
      * Stores the algorithm signature.
      *
-     * |--------|--------|------------------|
      * | Offset | Length | Default Data     |
      * |--------|--------|------------------|
      * | 4      | 2      | \x00\x00         |
@@ -70,7 +68,6 @@ class CompressionHeader {
     /**
      * Stores the algorithm reserved space.
      *
-     * |--------|--------|------------------|
      * | Offset | Length | Default Data     |
      * |--------|--------|------------------|
      * | 6      | 4      | \x00\x00\x00\x00 |
@@ -80,7 +77,6 @@ class CompressionHeader {
     /**
      * Stores the uncompressed content data length.
      *
-     * |--------|--------|----------------------------------|
      * | Offset | Length | Default Data                     |
      * |--------|--------|----------------------------------|
      * | 10     | 8      | \x00\x00\x00\x00\x00\x00\x00\x00 |
@@ -90,7 +86,6 @@ class CompressionHeader {
     /**
      * Stores the length of the additional header space.
      *
-     * |--------|--------|------------------|
      * | Offset | Length | Default Data     |
      * |--------|--------|------------------|
      * | 18     | 4      | \x00\x00\x00\x00 |
@@ -100,7 +95,6 @@ class CompressionHeader {
     /**
      * Stores the additional header.
      *
-     * |--------|--------|------------------|
      * | Offset | Length | Default Data     |
      * |--------|--------|------------------|
      * | 22     | 0      | \0               |

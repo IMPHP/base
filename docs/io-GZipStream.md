@@ -8,7 +8,17 @@ A CompressionStream that is backed by GZip DEFLATE
 This stream will compress and decompress all data that is
 read from and written to the backing stream.
 
- > This stream will add a header to the beginning of the stream.<br /><br />|----------|------------------------------------|---------------------------| | 4 bytes  | \xBB\x8A\x8E\xAB                   | SQSync Signature          | | 2 bytes  | \x1F\x8B                           | GZip Signature            | | 4 bytes  | \x08\0\0\0                         | DEFLATE Signature         | | 8 bytes  | \x00\x00\x00\x00\x00\x00\x00\x00   | Data length               | | 4 bytes  | \x00\x00\x00\x00                   | Additional header length  |<br /><br />The additional header can be set by using the `allocHeader()` and `writeHeader()` methods.  
+This stream will add a header to the beginning of the stream.
+
+| Length   | -                                  | Description               |
+|----------|------------------------------------|---------------------------|
+| 4 bytes  | \xBB\x8A\x8E\xAB                   | SQSync Signature          |
+| 2 bytes  | \x1F\x8B                           | GZip Signature            |
+| 4 bytes  | \x08\0\0\0                         | DEFLATE Signature         |
+| 8 bytes  | \x00\x00\x00\x00\x00\x00\x00\x00   | Data length               |
+| 4 bytes  | \x00\x00\x00\x00                   | Additional header length  |
+
+The additional header can be set by using the `allocHeader()` and `writeHeader()` methods.
 
  > The stream uses GZip as it's compression backend, but it does not produce GZip headers. Also it compresses data based on block chunks that are specific to this stream alone. You cannot use other GZip tools to decompress this data.  
 

@@ -5,7 +5,6 @@ ____
 ## Description
 Stores the additional header.
 
-|--------|--------|------------------|
 | Offset | Length | Default Data     |
 |--------|--------|------------------|
 | 22     | 0      | \0               |
