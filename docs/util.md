@@ -13,6 +13,11 @@ Small utility package that is bundled with IMPHP Base.
 | [IndexArray](util-IndexArray.md) | Defines an interface for a indexed array |
 | [MapArray](util-MapArray.md) | Defines an interface for a mapped array |
 
+## Traits
+| Name | Description |
+| :--- | :---------- |
+| [PropertyAccess](util-PropertyAccess.md) | Small trait to access get/set methods via property access |
+
 ## Classes
 | Name | Description |
 | :--- | :---------- |
