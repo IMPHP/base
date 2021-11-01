@@ -21,4 +21,4 @@
 
 namespace im;
 
-eval('const IMPHP_BASE = "' . trim(file_get_contents(__DIR__ . "/version")) . '";');
+eval('namespace im; const IMPHP_BASE = "' . trim(file_get_contents(__DIR__ . "/version")) . '";');

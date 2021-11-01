@@ -17,6 +17,18 @@ You can view the [Full Documentation](docs/base.md) to lean more about what this
 
 ### Installation
 
+__Using .phar library__
+
+```sh
+wget https://github.com/IMPHP/base/releases/download/<version>/imphp-base.phar
+```
+
+```php
+require "imphp-base.phar";
+
+...
+```
+
 __Clone via git__
 
 ```sh
