@@ -9,10 +9,13 @@ Remove a value from the list.
 
 ## Synopsis
 ```php
-remove(mixed $value): void
+remove(mixed $value): int
 ```
 
 ## Parameters
 | Name | Description |
 | :--- | :---------- |
 | value | A value to remove from the list. |
+
+## Return
+Returns the number of removed items

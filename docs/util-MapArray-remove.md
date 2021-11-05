@@ -10,10 +10,13 @@ that it finds.
 
 ## Synopsis
 ```php
-remove(mixed $value): void
+remove(mixed $value): int
 ```
 
 ## Parameters
 | Name | Description |
 | :--- | :---------- |
 | value | The value to remove |
+
+## Return
+Returrns the number of removed items

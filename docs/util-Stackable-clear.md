@@ -9,5 +9,5 @@ when the collection instance was first created.
 
 ## Synopsis
 ```php
-abstract public clear(): void
+public clear(): void
 ```

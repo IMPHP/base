@@ -7,7 +7,7 @@ Get a list of all of the operands
 
 ## Synopsis
 ```php
-public getOperands(): im\util\IndexArray
+public getOperands(): im\util\MutableStructuredList
 ```
 
 ## Return

@@ -10,7 +10,7 @@ only one value or none at all.
 
 ## Synopsis
 ```php
-public getOptionAsList(string $name): im\util\IndexArray
+public getOptionAsList(string $name): im\util\MutableStructuredList
 ```
 
 ## Parameters

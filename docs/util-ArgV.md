@@ -13,13 +13,13 @@ class ArgV implements Stringable {
     public __construct(null|array $args = NULL, array $validFlags = Array)
     public getScriptName(): null|string
     public getScriptPath(): null|string
-    public getFlags(): im\util\Vector
+    public getFlags(): im\util\MutableStructuredList
     public hasFlag(string $char): bool
-    public getOptions(): im\util\MapArray
+    public getOptions(): im\util\MutableStringMappedArray
     public hasOption(string $name): bool
     public getOption(string $name): null|string
-    public getOptionAsList(string $name): im\util\IndexArray
-    public getOperands(): im\util\IndexArray
+    public getOptionAsList(string $name): im\util\MutableStructuredList
+    public getOperands(): im\util\MutableStructuredList
     public getOperand(int $pos): null|string
     public getOperandCount(): int
 }

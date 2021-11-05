@@ -7,7 +7,7 @@ Get the current length of the collection.
 
 ## Synopsis
 ```php
-abstract public length(): int
+public length(): int
 ```
 
 ## Return

@@ -3,59 +3,64 @@
 ____
 
 ## Description
-An implementation of the `MapArray` interface.
-
-This class is an extension of the `Map` class that adds
-support for keys of multiple datatypes. Normally a map only
-supports `string` as a key, however this class extends this by allowing
-any type to be used, even an object.
+An modifiable map implementation using hashed keys
 
 ## Synopsis
 ```php
-class HashMap extends im\util\Map implements im\util\MapArray, IteratorAggregate, Traversable, im\util\Collection {
+class HashMap extends im\util\BaseCollection implements im\util\Collection, Traversable, IteratorAggregate, im\util\MapArray, im\util\MutableObjectMappedArray, im\util\ImmutableMappedArray, im\util\MutableMappedArray, im\util\ImmutableObjectMappedArray {
+
+    // Inherited Properties
+    protected array $dataset = Array
 
     // Methods
-    public addIterable(iterable $list): void
-    public get(mixed $key, mixed $defVal = NULL): mixed
-    public set(mixed $key, mixed $value): void
-    public unset(mixed $key): mixed
-    public isset(mixed $key): bool
+    public __construct(null|iterable $map = NULL)
+    public clear(): void
     public toArray(): array
     public equals(object $other): bool
+    public traverse(callable $func): bool
+    public copy(null|callable $sort = NULL): static
+    public addIterable(iterable $map): void
+    public remove(mixed $value): int
+    public set(mixed $key, mixed $value): mixed
+    public unset(mixed $key): mixed
+    public contains(mixed $value): bool
+    public getValues(): im\util\ListArray
+    public getKeys(): im\util\ListArray
+    public get(mixed $key, mixed $defVal = NULL): mixed
+    public isset(mixed $key): bool
+    public find(mixed $value): mixed
 
     // Inherited Methods
-    public __construct(null|iterable $values = NULL)
-    public remove(mixed $value): void
-    public find(mixed $value): mixed
-    public contains(mixed $value): bool
-    public getValues(): im\util\IndexArray
-    public getKeys(): im\util\IndexArray
     public static combineArrays(array &$array1, array &$array2): array
     public lock(): void
-    public clear(): void
     public length(): int
-    public copy(null|callable $sort = NULL): static
 }
 ```
+
+## Properties
+| Name | Description |
+| :--- | :---------- |
+| [__HashMap&nbsp;::&nbsp;$dataset__](util-HashMap-var_dataset.md) | Internal property containing the dataset for the collection |
 
 ## Methods
 | Name | Description |
 | :--- | :---------- |
-| [__HashMap&nbsp;::&nbsp;addIterable__](util-HashMap-addIterable.md) | Add elements from an iterator |
-| [__HashMap&nbsp;::&nbsp;get__](util-HashMap-get.md) | Return a value from within this bundle |
-| [__HashMap&nbsp;::&nbsp;set__](util-HashMap-set.md) | Add/Replace a value in this map |
-| [__HashMap&nbsp;::&nbsp;unset__](util-HashMap-unset.md) | Remove a value from this map |
-| [__HashMap&nbsp;::&nbsp;isset__](util-HashMap-isset.md) | Check if a key has been assigned to this map |
+| [__HashMap&nbsp;::&nbsp;\_\_construct__](util-HashMap-__construct.md) |  |
+| [__HashMap&nbsp;::&nbsp;clear__](util-HashMap-clear.md) | Clear the collection |
 | [__HashMap&nbsp;::&nbsp;toArray__](util-HashMap-toArray.md) | Builds a PHP array containing all of the current values within the collection |
 | [__HashMap&nbsp;::&nbsp;equals__](util-HashMap-equals.md) | Compare an object against this instance |
-| [__HashMap&nbsp;::&nbsp;\_\_construct__](util-HashMap-__construct.md) |  |
-| [__HashMap&nbsp;::&nbsp;remove__](util-HashMap-remove.md) | Remove a value from all assigned keys within this map  Searches for a specified value and removes all occurrences that it finds |
-| [__HashMap&nbsp;::&nbsp;find__](util-HashMap-find.md) | Find the key matching the first location with a specified value |
-| [__HashMap&nbsp;::&nbsp;contains__](util-HashMap-contains.md) | Check if a value exists in this map |
-| [__HashMap&nbsp;::&nbsp;getValues__](util-HashMap-getValues.md) | Returns an indexed list of all values assigned to this bundle |
-| [__HashMap&nbsp;::&nbsp;getKeys__](util-HashMap-getKeys.md) | Returns an indexed list of all keys assigned to this bundle |
-| [__HashMap&nbsp;::&nbsp;combineArrays__](util-HashMap-combineArrays.md) | Combine two arrays recursively  This is similar to `array_merge_recursive()`, but this method does not alter the structure |
-| [__HashMap&nbsp;::&nbsp;lock__](util-HashMap-lock.md) | Lock the dataset to make it immutable |
-| [__HashMap&nbsp;::&nbsp;clear__](util-HashMap-clear.md) | Clear the collection |
-| [__HashMap&nbsp;::&nbsp;length__](util-HashMap-length.md) | Get the current length of the collection |
+| [__HashMap&nbsp;::&nbsp;traverse__](util-HashMap-traverse.md) | Traverses the dataset |
 | [__HashMap&nbsp;::&nbsp;copy__](util-HashMap-copy.md) | Clone this instance and return it |
+| [__HashMap&nbsp;::&nbsp;addIterable__](util-HashMap-addIterable.md) |  |
+| [__HashMap&nbsp;::&nbsp;remove__](util-HashMap-remove.md) |  |
+| [__HashMap&nbsp;::&nbsp;set__](util-HashMap-set.md) |  |
+| [__HashMap&nbsp;::&nbsp;unset__](util-HashMap-unset.md) |  |
+| [__HashMap&nbsp;::&nbsp;contains__](util-HashMap-contains.md) |  |
+| [__HashMap&nbsp;::&nbsp;getValues__](util-HashMap-getValues.md) |  |
+| [__HashMap&nbsp;::&nbsp;getKeys__](util-HashMap-getKeys.md) |  |
+| [__HashMap&nbsp;::&nbsp;get__](util-HashMap-get.md) |  |
+| [__HashMap&nbsp;::&nbsp;isset__](util-HashMap-isset.md) |  |
+| [__HashMap&nbsp;::&nbsp;find__](util-HashMap-find.md) |  |
+| [__HashMap&nbsp;::&nbsp;combineArrays__](util-HashMap-combineArrays.md) | Combine two arrays recursively  This is similar to `array_merge_recursive()`, but this method does not alter the structure |
+| [__~HashMap&nbsp;::&nbsp;lock~__](util-HashMap-lock.md) | Lock the dataset to make it immutable |
+| [__HashMap&nbsp;::&nbsp;length__](util-HashMap-length.md) | Get the current length of the collection |

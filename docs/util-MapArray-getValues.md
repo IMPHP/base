@@ -3,9 +3,9 @@
 ____
 
 ## Description
-Returns an indexed list of all values assigned to this bundle
+Returns a list of all values assigned to this map
 
 ## Synopsis
 ```php
-getValues(): im\util\IndexArray
+getValues(): im\util\ListArray
 ```

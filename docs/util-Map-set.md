@@ -2,16 +2,7 @@
  > im\util\Map
 ____
 
-## Description
-Add/Replace a value in this map
-
 ## Synopsis
 ```php
-public set(string $key, mixed $value): void
+public set(string $key, mixed $value): mixed
 ```
-
-## Parameters
-| Name | Description |
-| :--- | :---------- |
-| key | Key that is used to assign the value |
-| defVal | The value to assign |

@@ -2,10 +2,7 @@
  > im\util\HashMap
 ____
 
-## Description
-Add elements from an iterator
-
 ## Synopsis
 ```php
-public addIterable(iterable $list): void
+public addIterable(iterable $map): void
 ```

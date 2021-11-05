@@ -17,13 +17,3 @@ join(null|string $delimiter = NULL): string
 
 ## Return
 Returns the joined string.
-
-## Example 1
-```php
-$ins1 = new HashSet( ["Val1", "Val2"] );
-echo $ins1->join(':');
-```
-
-```
-Output: Val1:Val2
-```

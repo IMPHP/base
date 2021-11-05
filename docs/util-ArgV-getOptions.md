@@ -7,8 +7,8 @@ Get all of the options that was passed
 
 ## Synopsis
 ```php
-public getOptions(): im\util\MapArray
+public getOptions(): im\util\MutableStringMappedArray
 ```
 
 ## Return
-A `MapArray` containing all of the options
+A map containing all of the options

@@ -4,10 +4,10 @@ ____
 
 ## Synopsis
 ```php
-public __construct(null|iterable $values = NULL)
+public __construct(null|iterable $map = NULL)
 ```
 
 ## Parameters
 | Name | Description |
 | :--- | :---------- |
-|  | Optional initiation values. |
+| map | A backed map instance |

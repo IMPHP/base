@@ -21,6 +21,7 @@ interface Collection implements IteratorAggregate, Traversable {
     toArray(): array
     copy(null|callable $sort = NULL): static
     equals(object $other): bool
+    traverse(callable $func): bool
 
     // Inherited Methods
     getIterator()
@@ -35,4 +36,5 @@ interface Collection implements IteratorAggregate, Traversable {
 | [__Collection&nbsp;::&nbsp;toArray__](util-Collection-toArray.md) | Builds a PHP array containing all of the current values within the collection |
 | [__Collection&nbsp;::&nbsp;copy__](util-Collection-copy.md) | Clone this instance and return it |
 | [__Collection&nbsp;::&nbsp;equals__](util-Collection-equals.md) | Compare an object against this instance |
+| [__Collection&nbsp;::&nbsp;traverse__](util-Collection-traverse.md) | Traverses the dataset |
 | [__Collection&nbsp;::&nbsp;getIterator__](util-Collection-getIterator.md) |  |

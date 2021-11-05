@@ -2,10 +2,7 @@
  > im\util\HashMap
 ____
 
-## Description
-Returns an indexed list of all keys assigned to this bundle
-
 ## Synopsis
 ```php
-public getKeys(): im\util\IndexArray
+public getKeys(): im\util\ListArray
 ```

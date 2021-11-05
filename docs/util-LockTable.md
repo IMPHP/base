@@ -11,6 +11,9 @@ performing any type of changes to the dataset. You can still lookup values and s
 but any attempts at making a change like clearing the dataset, adding or removing a value
 will throw an exception.
 
+> :warning: **Deprecated**  
+> This class is no longer used by the `Collection` classes and has been deprecated.  
+
  > If a `LockTable` is cloned, the cloned version will have the dataset unlocked.  
 
 ## Synopsis

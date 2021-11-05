@@ -8,6 +8,9 @@ Extension to `DataTable` that allows using multiple data types as key.
 This DataTable extenstion enables key hashing, allowing the usage of
 other data types as keys. Normally only `string` and `int` is allowed.
 
+> :warning: **Deprecated**  
+> This class is no longer used by the `Collection` classes and has been deprecated.  
+
 ## Synopsis
 ```php
 abstract class HashTable extends im\util\res\LockTable implements IteratorAggregate, Traversable {

@@ -14,3 +14,6 @@ unset(int $key): mixed
 | Name | Description |
 | :--- | :---------- |
 | key | The key to remove. |
+
+## Return
+The current value

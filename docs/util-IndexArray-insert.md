@@ -11,7 +11,7 @@ and add the value in between.
 
 ## Synopsis
 ```php
-insert(int $key, mixed $value): void
+insert(int $key, mixed $value): bool
 ```
 
 ## Parameters
@@ -19,3 +19,6 @@ insert(int $key, mixed $value): void
 | :--- | :---------- |
 | key | The key to insert into. |
 | value | The value to insert. |
+
+## Return
+Returns `TRUE` on success or `FALSE` if `$key` was out of range

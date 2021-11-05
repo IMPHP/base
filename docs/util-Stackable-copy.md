@@ -7,7 +7,7 @@ Clone this instance and return it.
 
 ## Synopsis
 ```php
-abstract public copy(null|callable $sort = NULL): static
+public copy(null|callable $sort = NULL): static
 ```
 
 ## Parameters

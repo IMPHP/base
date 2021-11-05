@@ -3,9 +3,9 @@
 ____
 
 ## Description
-Returns an indexed list of all keys assigned to this bundle
+Returns a list of all keys assigned to this map
 
 ## Synopsis
 ```php
-getKeys(): im\util\IndexArray
+getKeys(): im\util\ListArray
 ```

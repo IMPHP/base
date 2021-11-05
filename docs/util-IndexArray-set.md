@@ -12,7 +12,7 @@ rather than just appending the value to the end.
 
 ## Synopsis
 ```php
-set(int $key, mixed $value): void
+set(int $key, mixed $value): mixed
 ```
 
 ## Parameters
@@ -20,3 +20,6 @@ set(int $key, mixed $value): void
 | :--- | :---------- |
 | key | The key to set/change |
 | value | The value to add. |
+
+## Return
+The current value

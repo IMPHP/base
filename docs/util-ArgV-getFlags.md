@@ -7,7 +7,7 @@ Get all the flags that was passed
 
 ## Synopsis
 ```php
-public getFlags(): im\util\Vector
+public getFlags(): im\util\MutableStructuredList
 ```
 
 ## Return

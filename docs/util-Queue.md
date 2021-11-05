@@ -6,36 +6,53 @@ ____
 This stack-able pushes values to the top while
 popping them from the bottom.
 
- > The iterator in this class will pop all returned values. This means that you can simply iterate through the queue to pop them in the correct order. It also means that you will loop forever if you push values during iteration.  
+> :warning: **Deprecated**  
+> This class has been replaced by `im\util\FIFOStack`  
+
+ > This is just a reference class that extends `im\util\FIFOStack`  
 
 ## Synopsis
 ```php
-class Queue extends im\util\Stackable implements IteratorAggregate, Traversable, im\util\Collection {
+class Queue extends im\util\FIFOStack implements IteratorAggregate, Traversable, im\util\Collection {
 
-    // Methods
-    public __construct(int $capacity = 0)
-    public push(mixed $value): void
-    public pop(): mixed
-    public get(): mixed
-    public clear(): void
-    public length(): int
-    public toArray(): array
-    public copy(null|callable $sort = NULL): static
+    // Inherited Properties
+    protected array $dataset = Array
 
     // Inherited Methods
+    public __construct(int $capacity = 0)
+    public clear(): void
+    public toArray(): array
+    public copy(null|callable $sort = NULL): static
+    public push(mixed $value): void
+    public pop(): mixed
+    public peak(): mixed
+    public get(): mixed
     public equals(object $other): bool
+    public traverse(callable $func): bool
+    public static combineArrays(array &$array1, array &$array2): array
+    public lock(): void
+    public length(): int
 }
 ```
+
+## Properties
+| Name | Description |
+| :--- | :---------- |
+| [__Queue&nbsp;::&nbsp;$dataset__](util-Queue-var_dataset.md) | Internal property containing the dataset for the collection |
 
 ## Methods
 | Name | Description |
 | :--- | :---------- |
 | [__Queue&nbsp;::&nbsp;\_\_construct__](util-Queue-__construct.md) |  |
-| [__Queue&nbsp;::&nbsp;push__](util-Queue-push.md) | Push a new value into this stackable instance |
-| [__Queue&nbsp;::&nbsp;pop__](util-Queue-pop.md) | Pop a value off of this stackable instance |
-| [__Queue&nbsp;::&nbsp;get__](util-Queue-get.md) | Returns the current value in the stack |
 | [__Queue&nbsp;::&nbsp;clear__](util-Queue-clear.md) | Clear the collection |
-| [__Queue&nbsp;::&nbsp;length__](util-Queue-length.md) | Get the current length of the collection |
 | [__Queue&nbsp;::&nbsp;toArray__](util-Queue-toArray.md) | Builds a PHP array containing all of the current values within the collection |
 | [__Queue&nbsp;::&nbsp;copy__](util-Queue-copy.md) | Clone this instance and return it |
+| [__Queue&nbsp;::&nbsp;push__](util-Queue-push.md) | Push a new value into this stackable instance |
+| [__Queue&nbsp;::&nbsp;pop__](util-Queue-pop.md) | Pop a value off of this stackable instance |
+| [__Queue&nbsp;::&nbsp;peak__](util-Queue-peak.md) | Returns the current value in the stack |
+| [__~Queue&nbsp;::&nbsp;get~__](util-Queue-get.md) | Returns the current value in the stack |
 | [__Queue&nbsp;::&nbsp;equals__](util-Queue-equals.md) | Compare an object against this instance |
+| [__Queue&nbsp;::&nbsp;traverse__](util-Queue-traverse.md) | Traverses the dataset |
+| [__Queue&nbsp;::&nbsp;combineArrays__](util-Queue-combineArrays.md) | Combine two arrays recursively  This is similar to `array_merge_recursive()`, but this method does not alter the structure |
+| [__~Queue&nbsp;::&nbsp;lock~__](util-Queue-lock.md) | Lock the dataset to make it immutable |
+| [__Queue&nbsp;::&nbsp;length__](util-Queue-length.md) | Get the current length of the collection |
