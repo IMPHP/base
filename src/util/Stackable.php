@@ -21,20 +21,18 @@
 
 namespace im\util;
 
-use im\util\res\DataTable;
 use Traversable;
 
 /**
  * Defines a basic stackable class.
- * The order of in and out is not defined in this class,
+ *
+ * The order of in/out is not defined in this class,
  * and is decided by the class extending this. This class only
  * defines the basic methods for any stackable class and a few
- * pre-build collection methods.
+ * pre-build collection methods. Whether an implementation uses
+ * FILO, FIFO or something else entirely, is up to each implementation.
  */
-abstract class Stackable implements Collection {
-
-    /** @internal */
-    protected DataTable $data;
+abstract class Stackable extends BaseCollection {
 
     /**
      * Push a new value into this stackable instance.
@@ -66,49 +64,22 @@ abstract class Stackable implements Collection {
      * @return
      *      If this stack is empty, then `NULL` is returned.
      */
-    abstract function get(): mixed;
+    abstract function peak(): mixed;
 
     /**
+     * Returns the current value in the stack.
      *
+     * The value that is returned from this, is the next value
+     * that will be popped of when calling `pop()`.
+     *
+     * @deprecated
+     *      This method has been replaced by `peak()`
+     *
+     * @return
+     *      If this stack is empty, then `NULL` is returned.
      */
-    public function __construct() {
-        $this->data = $this->createDataTable();
-    }
-
-    /**
-     * @php
-     */
-    public function __serialize(): array {
-        return $this->mData->__serialize();
-    }
-
-    /**
-     * @php
-     */
-    public function __unserialize(array $data): void {
-        $this->mData = $this->createDataTable();
-        $this->mData->__unserialize($data);
-    }
-
-    /**
-     * @internal
-     */
-    protected function createDataTable(): DataTable {
-        return new class() extends DataTable {};
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Collection")]
-    public function toArray(): array {
-        $array = [];
-
-        foreach ($this->data as $value) {
-            $array[] = $value;
-        }
-
-        return $array;
+    public function get(): mixed {
+        return $this->peak();
     }
 
     /**
@@ -120,15 +91,7 @@ abstract class Stackable implements Collection {
             return false;
         }
 
-        if ($this->length() == $other->length()) {
-            $arr = $this->toArray();
-            $otherArr = $other->toArray();
-
-            sort($arr);
-            sort($otherArr);
-
-            return $otherArr == $arr;
-        }
+        return $this->toArray() == $other->toArray();
     }
 
     /**
@@ -142,16 +105,40 @@ abstract class Stackable implements Collection {
     }
 
     /**
-     * @php
+     * @inheritDoc
      */
-    public function __clone(): void {
-        $this->data = clone $this->data;
+    #[Override("im\util\Collection")]
+    public function traverse(callable $func): bool {
+        while ($this->length() > 0) {
+            $result = $func(null, $this->pop());
+
+            if (is_bool($result) && !$result) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
-     * @php
+     * @inheritDoc
      */
-    public function __debugInfo() {
-        return $this->toArray();
+    #[Override("im\util\Collection")]
+    function copy(callable $sort = null): static {
+        $new = clone $this;
+
+        if ($sort != null) {
+            $new->clear();
+
+            foreach ($this->dataset["table"] as $value) {
+                if ( ! $sort(null, $value) ) {
+                    continue;
+                }
+
+                $new->dataset["table"][] = $value;
+            }
+        }
+
+        return $new;
     }
 }

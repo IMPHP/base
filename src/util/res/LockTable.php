@@ -34,6 +34,10 @@ use Exception;
  *
  * @note
  *      If a `LockTable` is cloned, the cloned version will have the dataset unlocked.
+ *
+ * @deprecated
+ *      This class is no longer used by the `Collection` classes
+ *      and has been deprecated.
  */
 abstract class LockTable extends DataTable {
 

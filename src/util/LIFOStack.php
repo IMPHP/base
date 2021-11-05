@@ -22,14 +22,36 @@
 namespace im\util;
 
 /**
- * Defines an interface for a mapped array.
- *
- * A mapped array is a list that uses keys to structure it's data.
- * Each value within a map has a key that points to it and can be used
- * to access it.
- *
- * @deprecated
- *      This interface has been replaced by `im\util\ImmutableMappedArray`
- *      and `im\util\MutableMappedArray`.
+ * A LIFO Stack implementation
  */
-interface MapArray extends MutableMappedArray {}
+class LIFOStack extends Stackable {
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Stackable")]
+    public function push(mixed $value): void {
+        $this->dataset["length"]++;
+        array_push($this->dataset["table"], $value);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Stackable")]
+    public function pop(): mixed {
+        if ($this->dataset["length"] > 0) {
+            $this->dataset["length"]--;
+        }
+
+        return array_pop($this->dataset["table"]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Stackable")]
+    public function peak(): mixed {
+        return $this->dataset["table"][$this->dataset["length"]];
+    }
+}

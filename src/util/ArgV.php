@@ -190,7 +190,7 @@ class ArgV {
      * @return
      *      Returns a list of all the available flags.
      */
-    public function getFlags(): Vector {
+    public function getFlags(): MutableStructuredList {
         return new Vector( array_keys($this->mFlags) );
     }
 
@@ -217,9 +217,9 @@ class ArgV {
      *
      * @see hasOption
      * @return
-     *      A `MapArray` containing all of the options
+     *      A map containing all of the options
      */
-    public function getOptions(): MapArray {
+    public function getOptions(): MutableStringMappedArray {
         $ret = new Map();
 
         foreach ($this->mOptions as $key => $val) {
@@ -291,7 +291,7 @@ class ArgV {
      * @return
      *      Always returns a list
      */
-    public function getOptionAsList(string $name): IndexArray {
+    public function getOptionAsList(string $name): MutableStructuredList {
         $ret = $this->mOptions[$name] ?? [];
 
         return new Vector( is_array($ret) ? $ret : [$ret] );
@@ -304,7 +304,7 @@ class ArgV {
      * @return
      *      A list of operands. An empty list is returned if there is no operands.
      */
-    public function getOperands(): IndexArray {
+    public function getOperands(): MutableStructuredList {
         return new Vector( $this->mOperands );
     }
 

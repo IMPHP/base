@@ -21,115 +21,15 @@
 
 namespace im\util;
 
-use im\util\res\DataTable;
-
 /**
- * An implementation of the `ListArray` interface.
+ * An modifiable unstructured list implementation
  *
- * This is a really slow `SetArray` and should properly not be
- * used in a high produktion invironment. It's fine for a local
- * application where a single user accesses it at one time, but
- * anything besides that and testing, you should consider
- * using `im\util\HashSet` instead.
+ * @deprecated
+ *      This class has been deprecated as it serves no purpose.
+ *      Use the `im\util\HashSet` to optain a real and optimized Set Collection.
+ *
+ * @note
+ *      This class no loger has any underlaying implementation.
+ *      It simply extends `im\util\HashSet`.
  */
-class Set extends BaseCollection implements ListArray {
-
-    /**
-     * @param $values
-     *      Optional initiation values.
-     *      Only the values will be used.
-     */
-    public function __construct(iterable $values = null) {
-        parent::__construct();
-
-        if ($values != null) {
-            $this->addIterable($values);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\ListArray")]
-    public function join(string $delimiter = null): string {
-        if ($delimiter == null) {
-            $delimiter = ",";
-        }
-
-        return implode($delimiter, $this->toArray());
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\ListArray")]
-    public function addIterable(iterable $list): void {
-        foreach ($list as $value) {
-            $this->add($value);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\ListArray")]
-    public function add(mixed $value): void {
-        if (!$this->contains($value)) {
-            $this->mData->transaction(
-                DataTable::T_SET,
-                $this->mData->transaction(DataTable::T_LEN),
-                $value
-            );
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\ListArray")]
-    public function remove(mixed $value): void {
-        $pos = $this->mData->transaction(DataTable::T_LOC, null, $value);
-
-        if ($pos !== null) {
-            $length = $this->mData->transaction(DataTable::T_LEN);
-
-            for ($i=$pos, $x=$i+1; $x < $length; $i++, $x++) {
-                $this->mData->transaction(
-                    DataTable::T_SET,
-                    $i,
-                    $this->mData->transaction(DataTable::T_GET, $x)
-                );
-            }
-
-            $this->mData->transaction(DataTable::T_DEL, $length - 1);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\ListArray")]
-    function equals(object $other): bool {
-        if (!($other instanceof ListArray)) {
-            return false;
-        }
-
-        if ($this->length() == $other->length()) {
-            $arr = $this->toArray();
-            $otherArr = $other->toArray();
-
-            sort($arr);
-            sort($otherArr);
-
-            return $otherArr == $arr;
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\ListArray")]
-    public function contains(mixed $value): bool {
-        return $this->mData->transaction(DataTable::T_LOC, null, $value) !== null;
-    }
-}
+class Set extends HashSet {}

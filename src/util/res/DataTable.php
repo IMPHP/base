@@ -88,6 +88,10 @@ use Traversable;
  *      The above class will prevent any changes to the dataset. It's not very useful,
  *      but any class that is build to use `DataTable` can easily work with the modified version
  *      without much trouble.
+ *
+ * @deprecated 
+ *      This class is no longer used by the `Collection` classes
+ *      and has been deprecated.
  */
 abstract class DataTable implements IteratorAggregate {
 

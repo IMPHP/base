@@ -78,23 +78,6 @@ interface Collection extends IteratorAggregate {
      * Compare an object against this instance.
      * This will match both the type and the content.
      *
-     * @example
-     *
-     *      ```php
-     *      $ins1 = new HashSet( ["Val1", "Val2"] );
-     *      $ins2 = new Vector( ["Val1", "Val2"] );
-     *      $ins3 = new Set( ["Val1", "Val2", "Val3"] );
-     *
-     *      $ins1->equals($ins2); // Returns true
-     *      $ins2->equals($ins1); // Returns false
-     *      $ins3->equals($ins1); // Returns false
-     *      ```
-     *
-     *      The first returns `true` because a HashSet will compare it to `ListArray`
-     *      which both instances are a part of. The second will return `false`
-     *      because a Vector will compare it to `IndexList` which only Vector is a part of.
-     *      The third will return `false` because the two have different values.
-     *
      * @param $other
      *      An object to compare against this collection instance.
      *
@@ -103,4 +86,26 @@ interface Collection extends IteratorAggregate {
      *      or `false` if type or content does not match.
      */
     function equals(object $other): bool;
+
+    /**
+     * Traverses the dataset.
+     *
+     * This method will traverse the dataset and call the
+     * callable on each key/value.
+     *
+     * @note
+     *      This method should not be abused due to lazyness.
+     *      It's convenient at some times, but it's important to be aware
+     *      that this is not a very optimized way to access the data.
+     *      A manual `loop` is prefered in most cases.
+     *
+     * @param $func
+     *      A `function(mixed $key, mixed $value): bool` to call on each key/value.
+     *      If the function returns `FALSE`, further traversal will be terminated.
+     *
+     * @return
+     *      This method will return `FALSE` if the traversal was terninated by the `callable`.
+     *      Otherwise it will return `TRUE`.
+     */
+    function traverse(callable $func): bool;
 }

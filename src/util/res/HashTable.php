@@ -28,6 +28,10 @@ use Traversable;
  *
  * This DataTable extenstion enables key hashing, allowing the usage of
  * other data types as keys. Normally only `string` and `int` is allowed.
+ *
+ * @deprecated
+ *      This class is no longer used by the `Collection` classes
+ *      and has been deprecated.
  */
 abstract class HashTable extends LockTable {
 

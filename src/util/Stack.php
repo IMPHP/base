@@ -21,122 +21,14 @@
 
 namespace im\util;
 
-use im\util\res\DataTable;
-
 /**
  * This stack-able pushes values to the top while
  * also popping them from the top.
  *
+ * @deprecated
+ *      This class has been replaced by `im\util\LIFOStack`
+ *
  * @note
- *      The iterator in this class will pop all returned values.
- *      This means that you can simply iterate through the stack to
- *      pop them in the correct order. It also means that you will loop
- *      forever if you push values during iteration.
+ *      This is just a reference class that extends `im\util\LIFOStack`
  */
-class Stack extends Stackable {
-
-    /** @internal */
-    protected int $length = 0;
-
-    /**
-     * @php
-     */
-    public function __serialize(): array {
-        return [
-            "data" => $this->mData->__serialize(),
-            "length" => $this->length
-        ];
-    }
-
-    /**
-     * @php
-     */
-    public function __unserialize(array $data): void {
-        parent::__unserialize($data["data"] ?? []);
-
-        $this->length = $data["length"] ?? 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Stackable")]
-    public function push(mixed $value): void {
-        $this->data->transaction(DataTable::T_SET, $this->length++, $value);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Stackable")]
-    public function pop(): mixed {
-        $value = null;
-
-        if ($this->length > 0) {
-            /*
-             * We replace the value rather than just retrieving it, so that possible
-             * objects can be recycled.
-             */
-            $value = $this->data->transaction(DataTable::T_RPL, --$this->length, null);
-
-            if ($this->length == 0) {
-                $this->clear();
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Stackable")]
-    public function get(): mixed {
-        if ($this->length > 0) {
-            return $this->data->transaction(DataTable::T_GET, $this->length - 1);
-        }
-
-        return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Stackable")]
-    public function copy(callable $sort = null): static {
-        $new = clone $this;
-
-        if ($sort != null) {
-            $new->data->transaction(DataTable::T_CLR);
-
-            for ($i=0; $i < $this->length; $i++) {
-                $value = $this->data->transaction(DataTable::T_GET, $i);
-
-                if ( ! $sort($i, $value) ) {
-                    continue;
-                }
-
-                $new->push($value);
-            }
-        }
-
-        return $new;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Stackable")]
-    public function clear(): void {
-        $this->data->transaction(DataTable::T_CLR);
-        $this->length = 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Stackable")]
-    public function length(): int {
-        return $this->length;
-    }
-}
+class Stack extends LIFOStack {}

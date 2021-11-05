@@ -2,7 +2,7 @@
 /*
  * This file is part of the IMPHP Project: https://github.com/IMPHP
  *
- * Copyright (c) 2018 Daniel Bergløv, License: MIT
+ * Copyright (c) 2021 Daniel Bergløv, License: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -22,14 +22,31 @@
 namespace im\util;
 
 /**
- * Defines an interface for a mapped array.
- *
- * A mapped array is a list that uses keys to structure it's data.
- * Each value within a map has a key that points to it and can be used
- * to access it.
- *
- * @deprecated
- *      This interface has been replaced by `im\util\ImmutableMappedArray`
- *      and `im\util\MutableMappedArray`.
+ * Defines an unmodifiable unstructured list
  */
-interface MapArray extends MutableMappedArray {}
+interface ImmutableListArray extends Collection {
+
+    /**
+     * Join all the values in the list into one string.
+     *
+     * @param $delimiter
+     *      Optional string or character that will be added in between
+     *      each value in the string.
+     *
+     * @return
+     *      Returns the joined string.
+     */
+    function join(string $delimiter = null): string;
+
+    /**
+     * Checks to see if a value exists in this list.
+     *
+     * @param $value
+     *      A value to look for.
+     *
+     * @return
+     *      Returns `true` if an occurences of the value
+     *      was found or `false` otherwise.
+     */
+    function contains(mixed $value): bool;
+}

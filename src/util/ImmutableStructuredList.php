@@ -2,7 +2,7 @@
 /*
  * This file is part of the IMPHP Project: https://github.com/IMPHP
  *
- * Copyright (c) 2018 Daniel Bergløv, License: MIT
+ * Copyright (c) 2021 Daniel Bergløv, License: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -22,14 +22,37 @@
 namespace im\util;
 
 /**
- * Defines an interface for a mapped array.
- *
- * A mapped array is a list that uses keys to structure it's data.
- * Each value within a map has a key that points to it and can be used
- * to access it.
- *
- * @deprecated
- *      This interface has been replaced by `im\util\ImmutableMappedArray`
- *      and `im\util\MutableMappedArray`.
+ * Defines an unmodifiable structured list
  */
-interface MapArray extends MutableMappedArray {}
+interface ImmutableStructuredList extends ImmutableListArray {
+
+    /**
+     * Returns the positional key for a given value
+     *
+     * The key that is returned is for the first occurance
+     * of the specified value.
+     *
+     * @param $value
+     *      Value to seach for.
+     *
+     * @return
+     *      This will return `-1` if no such value was found
+     */
+    function indexOf(mixed $value): int;
+
+    /**
+     * Returns the value for a positional key
+     *
+     * @param $key
+     *      The key to get.
+     *
+     * @param $defVal
+     *      Default value when the key does not exist.
+     *
+     * @return
+     *      This will return `null` or `$defVal` if the
+     *      key does not exist. It also returns `$defVal`
+     *      if the value is `null`.
+     */
+    function get(int $key, mixed $defVal = null): mixed;
+}

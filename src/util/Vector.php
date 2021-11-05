@@ -21,235 +21,164 @@
 
 namespace im\util;
 
-use im\util\res\DataTable;
-use Exception;
-
 /**
- * An implementation of the `IndexArray` interface.
+ * Defines an unmodifiable unstructured list
  */
 class Vector extends BaseCollection implements IndexArray {
 
     /**
-     * @param $values
-     *      Optional initiation values.
-     *      Only the values will be used.
+     * @ignore
      */
-    public function __construct(iterable $values = null) {
+    public function __construct(iterable $list = null) {
         parent::__construct();
 
-        if ($values != null) {
-            $this->addIterable($values);
+        if ($list != null) {
+            $this->addIterable($list);
         }
     }
-
-    /* ------------------------------------------------------------
-     * Implements methods from IndexArray
-     */
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\IndexArray")]
+    #[Override("im\utils\ImmutableListArray")]
+    public function join(string $delimiter = null): string {
+        return implode($delimiter ?? ",", $this->dataset["table"]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\ImmutableListArray")]
+    public function contains(mixed $value): bool {
+        return in_array($value, $this->dataset["table"], true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\ImmutableStructuredList")]
     public function indexOf(mixed $value): int {
-        return $this->mData->transaction(DataTable::T_LOC, null, $value) ?? -1;
+        return ($pos = array_search($value, $this->dataset["table"], true)) !== false ? $pos : -1;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\IndexArray")]
+    #[Override("im\utils\ImmutableStructuredList")]
     public function get(int $key, mixed $defVal = null): mixed {
-        $length = $this->mData->transaction(DataTable::T_LEN);
-
-        if ($key >= 0 && $length <= $key) {
-            return null;
-
-        } else if ($key < 0) {
-            $key = $length + $key;
-
-            if ($key < 0) {
-                return null;
-            }
-        }
-
-        return $this->mData->transaction(DataTable::T_GET, $key);
+        return $this->dataset["table"][$this->resolveKey($key)] ?? $defVal;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\IndexArray")]
-    public function set(int $key, mixed $value): void {
-        $length = $this->mData->transaction(DataTable::T_LEN);
-
-        if ($key > 0 && $length < $key) {
-            throw new Exception("Array position '$key' is out of range");
-
-        } else if ($key < 0) {
-            $key = $length + $key;
-
-            if ($key < -1) {
-                throw new Exception("Array position '$key' is out of range");
-
-            } else if ($key == -1) {
-                $key = 0;
-            }
-        }
-
-        $this->mData->transaction(DataTable::T_SET, $key, $value);
+    #[Override("im\utils\ListArray")]
+    public function add(mixed $value): void {
+        $this->dataset["table"][ $this->dataset["length"]++ ] = $value;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\IndexArray")]
+    #[Override("im\utils\ListArray")]
+    public function remove(mixed $value): int {
+        $i = 0;
+
+        while (($pos = array_search($value, $this->dataset["table"], true)) !== false) {
+            array_splice($this->dataset["table"], $pos, 1);
+            $i++;
+        }
+
+        $this->dataset["length"] -= $i;
+
+        return $i;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\ListArray")]
+    public function addIterable(iterable $list): void {
+        foreach ($list as $value) {
+            $this->dataset["table"][ $this->dataset["length"]++ ] = $value;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\StructuredList")]
+    public function set(int $key, mixed $value): mixed {
+        $key = $this->resolveKey($key);
+
+        if ($key < $this->dataset["length"]) {
+            $cur = $this->dataset["table"][$key];
+            $this->dataset["table"][$key] = $value;
+
+            return $cur;
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\StructuredList")]
     public function unset(int $key): mixed {
-        $length = $this->mData->transaction(DataTable::T_LEN);
+        $key = $this->resolveKey($key);
 
-        if ($key >= 0 && $length <= $key) {
-            return null;
+        if ($key < $this->dataset["length"]) {
+            $removed = array_splice($this->dataset["table"], $key, 1);
+            $this->dataset["length"]--;
 
-        } else if ($key < 0) {
-            $key = $length + $key;
-
-            if ($key < 0) {
-                return null;
-            }
+            return $removed[0];
         }
 
-        $value = $this->mData->transaction(DataTable::T_GET, $key);
-
-        for ($i=$key, $x=$i+1; $x < $length; $i++, $x++) {
-            $this->mData->transaction(
-                DataTable::T_SET,
-                $i,
-                $this->mData->transaction(DataTable::T_GET, $x)
-            );
-        }
-
-        $this->mData->transaction(DataTable::T_DEL, $length - 1);
-
-        return $value;
+        return null;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\IndexArray")]
-    public function insert(int $key, mixed $value): void {
-        $length = $this->mData->transaction(DataTable::T_LEN);
+    #[Override("im\utils\StructuredList")]
+    public function insert(int $key, mixed $value): bool {
+        $key = $this->resolveKey($key);
 
-        if ($key > 0 && $length < $key) {
-            throw new Exception("Array position '$key' is out of range");
+        if ($key <= $this->dataset["length"]) {
+            array_splice($this->dataset["table"], $key, 0, [$value]);
+            $this->dataset["length"]++;
 
-        } else if ($key < 0) {
-            $key = $length + $key;
+            return true;
+        }
 
-            if ($key < -1) {
-                throw new Exception("Array position '$key' is out of range");
+        return false;
+    }
 
-            } else if ($key == -1) {
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\Collection")]
+    public function equals(object $other): bool {
+        if (!($other instanceOf ImmutableListArray)) {
+            return false;
+        }
+
+        return $this->toArray() == $other->toArray();
+    }
+
+    /**
+     * @internal
+     */
+    protected function resolveKey(int $key): int {
+        if ($key < 0) {
+            $key = $this->dataset["length"] + $key;
+
+            if ($key < 0) {
                 $key = 0;
             }
         }
 
-        if ($key < $length) {
-            for ($i=$length, $x=$i-1; $i > $key; $i--, $x--) {
-                $this->mData->transaction(
-                    DataTable::T_SET,
-                    $i,
-                    $this->mData->transaction(DataTable::T_GET, $x)
-                );
-            }
-        }
-
-        $this->mData->transaction(DataTable::T_SET, $key, $value);
+        return $key;
     }
-
-
-    /* ------------------------------------------------------------
-     * Implements methods from ListArray
-     */
-
-     /**
-      * @inheritDoc
-      */
-     #[Override("im\util\ListArray")]
-     public function join(string $delimiter = null): string {
-         if ($delimiter == null) {
-             $delimiter = ",";
-         }
-
-         return implode($delimiter, $this->toArray());
-     }
-
-     /**
-      * @inheritDoc
-      */
-     #[Override("im\util\ListArray")]
-     public function addIterable(iterable $list): void {
-         foreach ($list as $value) {
-             $this->add($value);
-         }
-     }
-
-     /**
-      * @inheritDoc
-      */
-     #[Override("im\util\ListArray")]
-     public function add(mixed $value): void {
-         $this->mData->transaction(
-             DataTable::T_SET,
-             $this->mData->transaction(DataTable::T_LEN),
-             $value
-         );
-     }
-
-     /**
-      * @inheritDoc
-      */
-     #[Override("im\util\ListArray")]
-     public function remove(mixed $value): void {
-         while (($pos = $this->mData->transaction(DataTable::T_LOC, null, $value)) !== null) {
-             $length = $this->mData->transaction(DataTable::T_LEN);
-
-             for ($i=$pos, $x=$i+1; $x < $length; $i++, $x++) {
-                 $this->mData->transaction(
-                     DataTable::T_SET,
-                     $i,
-                     $this->mData->transaction(DataTable::T_GET, $x)
-                 );
-             }
-
-             $this->mData->transaction(DataTable::T_DEL, $length - 1);
-         }
-     }
-
-     /**
-      * @inheritDoc
-      */
-     #[Override("im\util\ListArray")]
-     function equals(object $other): bool {
-         if (!($other instanceof IndexArray)) {
-             return false;
-         }
-
-         if ($this->length() == $other->length()) {
-             $arr = $this->toArray();
-             $otherArr = $other->toArray();
-
-             sort($arr);
-             sort($otherArr);
-
-             return $otherArr == $arr;
-         }
-     }
-
-     /**
-      * @inheritDoc
-      */
-     #[Override("im\util\ListArray")]
-     public function contains(mixed $value): bool {
-         return $this->mData->transaction(DataTable::T_LOC, null, $value) !== null;
-     }
 }

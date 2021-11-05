@@ -21,146 +21,151 @@
 
 namespace im\util;
 
-use im\util\res\DataTable;
-use Exception;
-
 /**
- * An implementation of the `MapArray` interface.
+ * An unmodifiable map implementation
  */
-class Map extends BaseCollection implements MapArray {
+class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
 
     /**
-     * @param values
-     *      Optional initiation values.
+     * @param $map
+     *      A backed map instance
      */
-     public function __construct(iterable $values = null) {
-         parent::__construct();
+    public function __construct(iterable $map = null) {
+        parent::__construct();
 
-         if ($values != null) {
-             $this->addIterable($values);
-         }
-     }
-
-     /**
-      * @inheritDoc
-      */
-     #[Override("im\util\MapArray")]
-     public function addIterable(iterable $list): void {
-         foreach ($list as $key => $value) {
-             if (!is_string($key)) {
-                 throw new Exception("Invalid type '".gettype($key)."' cannot be used as key");
-             }
-
-             $this->set($key, $value);
-         }
-     }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\MapArray")]
-    public function get(string $key, mixed $defVal = null): mixed {
-        return $this->mData->transaction(DataTable::T_GET, $key) ?? $defVal;
+        if ($map != null) {
+            $this->addIterable($map);
+        }
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\MapArray")]
-    public function set(string $key, mixed $value): void {
-        $this->mData->transaction(DataTable::T_SET, $key, $value);
+    #[Override("im\utils\MappedArray")]
+    public function addIterable(iterable $map): void {
+        foreach ($map as $key => $value) {
+            if (is_string($key)) {
+                $this->dataset["table"][$key] = $value;
+                $this->dataset["length"]++;
+            }
+        }
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\MapArray")]
+    #[Override("im\utils\MappedArray")]
+    public function remove(mixed $value): int {
+        $i = 0;
+
+        while (($key = array_search($value, $this->dataset["table"], true)) !== false) {
+            unset($this->dataset["table"][$key]);
+            $i++;
+        }
+
+        $this->dataset["length"] -= $i;
+
+        return $i;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\StringMappedArray")]
+    public function set(string $key, mixed $value): mixed {
+        if (isset($this->dataset["table"][$key])) {
+            $cur = $this->dataset["table"][$key];
+
+        } else {
+            $this->dataset["length"]++;
+            $cur = null;
+        }
+
+        $this->dataset["table"][$key] = $value;
+
+        return $cur;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\StringMappedArray")]
     public function unset(string $key): mixed {
-        $value = $this->mData->transaction(DataTable::T_GET, $key);
-        $this->mData->transaction(DataTable::T_DEL, $key);
+        if (isset($this->dataset["table"][$key])) {
+            $cur = $this->dataset["table"][$key];
+            $this->dataset["length"]--;
 
-        return $value;
-    }
+            unset($this->dataset["table"][$key]);
 
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\MapArray")]
-    public function isset(string $key): bool {
-        return $this->mData->transaction(DataTable::T_CHK, $key);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\MapArray")]
-    public function remove(mixed $value): void {
-        while (($key = $this->mData->transaction(DataTable::T_LOC, null, $value)) != null) {
-            $this->mData->transaction(DataTable::T_DEL, $key);
+            return $cur;
         }
+
+        return null;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\MapArray")]
-    public function find(mixed $value): mixed {
-        return $this->mData->transaction(DataTable::T_LOC, null, $value);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\MapArray")]
+    #[Override("im\utils\ImmutableMappedArray")]
     public function contains(mixed $value): bool {
-        return $this->mData->transaction(DataTable::T_LOC, null, $value) != null;
+        return in_array($value, $this->dataset["table"], true);
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\MapArray")]
-    public function getValues(): IndexArray {
-        $vals = new Vector();
+    #[Override("im\utils\ImmutableMappedArray")]
+    public function getValues(): ListArray {
+        $list = new Vector();
+        $list->addIterable(array_values($this->dataset["table"]));
 
-        foreach ($this->mData as $value) {
-            $vals->add($value);
-        }
-
-        return $vals;
+        return $list;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\MapArray")]
-    public function getKeys(): IndexArray {
-        $vals = new Vector();
+    #[Override("im\utils\ImmutableMappedArray")]
+    public function getKeys(): ListArray {
+        $list = new Vector();
+        $list->addIterable(array_keys($this->dataset["table"]));
 
-        foreach ($this->mData as $key => $value) {
-            $vals->add($key);
-        }
-
-        return $vals;
+        return $list;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\util\MapArray")]
-    function equals(object $other): bool {
-        if (!($other instanceof MapArray)) {
+    #[Override("im\utils\ImmutableStringMappedArray")]
+    public function get(string $key, mixed $defVal = null): mixed {
+        return $this->dataset["table"][$key] ?? $defVal;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\ImmutableStringMappedArray")]
+    public function isset(string $key): bool {
+        return isset($this->dataset["table"][$key]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\ImmutableStringMappedArray")]
+    public function find(mixed $value): ?string {
+        return ($key = array_search($value, $this->dataset["table"], true)) !== false ? $key : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\Collection")]
+    public function equals(object $other): bool {
+        if (!($other instanceOf ImmutableStringMappedArray)) {
             return false;
         }
 
-        if ($this->length() == $other->length()) {
-            $arr = $this->toArray();
-            $otherArr = $other->toArray();
-
-            sort($arr);
-            sort($otherArr);
-
-            return $otherArr == $arr;
-        }
+        return $this->toArray() == $other->toArray();
     }
 }

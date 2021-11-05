@@ -2,7 +2,7 @@
 /*
  * This file is part of the IMPHP Project: https://github.com/IMPHP
  *
- * Copyright (c) 2018 Daniel Bergløv, License: MIT
+ * Copyright (c) 2021 Daniel Bergløv, License: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -22,14 +22,41 @@
 namespace im\util;
 
 /**
- * Defines an interface for a mapped array.
- *
- * A mapped array is a list that uses keys to structure it's data.
- * Each value within a map has a key that points to it and can be used
- * to access it.
- *
- * @deprecated
- *      This interface has been replaced by `im\util\ImmutableMappedArray`
- *      and `im\util\MutableMappedArray`.
+ * An modifiable structured list implementation
  */
-interface MapArray extends MutableMappedArray {}
+interface MutableListArray extends ImmutableListArray {
+
+    /**
+     * Add a value to this list.
+     *
+     * @param $value
+     *      A value that is added to the list.
+     */
+    function add(mixed $value): void;
+
+    /**
+     * Remove a value from the list.
+     *
+     * @note
+     *      This will remove all occurences of the value.
+     *
+     * @param $value
+     *      A value to remove from the list.
+     *
+     * @return
+     *      Returns the number of removed items
+     */
+    function remove(mixed $value): int;
+
+    /**
+     * Add values from an `iterable` object or array.
+     *
+     * @param $list
+     *      An `iterable` object or array to provide
+     *      the values that should be added.
+     *
+     *      Keys will be ignored and values are inserted
+     *      in a way that matches the structure of this list.
+     */
+    function addIterable(iterable $list): void;
+}

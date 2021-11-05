@@ -21,8 +21,6 @@
 
 namespace im\util;
 
-use im\util\res\DataTable;
-use im\util\res\LockTable;
 use Traversable;
 
 /**
@@ -30,8 +28,14 @@ use Traversable;
  */
 abstract class BaseCollection implements Collection {
 
-    /** @ignore */
-    protected DataTable $mData;
+    /**
+     * Internal property containing the dataset for the collection.
+     * This array is structured as `["length" => 0, "table" => []]`.
+     */
+    protected array $dataset = [
+        "length" => 0,
+        "table" => []
+    ];
 
     /**
      * Combine two arrays recursively
@@ -73,36 +77,55 @@ abstract class BaseCollection implements Collection {
      *
      */
     public function __construct() {
-        $this->mData = $this->createDataTable();
+
     }
 
     /**
      * @php
      */
     public function __serialize(): array {
-        return $this->mData->__serialize();
+        return $this->dataset;
     }
 
     /**
      * @php
      */
     public function __unserialize(array $data): void {
-        $this->mData = $this->createDataTable();
-        $this->mData->__unserialize($data);
+        $this->dataset = $data;
     }
 
     /**
-     * @internal
+     * @php
      */
-    protected function createDataTable(): DataTable {
-        return new class() extends LockTable {};
+    public function __debugInfo() {
+        return $this->toArray();
     }
 
     /**
      * Lock the dataset to make it immutable.
+     *
+     * @deprecated
+     *      This method no longer does anything due to that
+     *      the underlaying data structure has changed.
      */
     function lock(): void {
-        $this->mData->transaction(LockTable::T_LCK);
+        // Nothing
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    public function traverse(callable $func): bool {
+        foreach ($this->dataset["table"] as $key => $value) {
+            $result = $func($key, $value);
+
+            if (is_bool($result) && !$result) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -110,7 +133,10 @@ abstract class BaseCollection implements Collection {
      */
     #[Override("im\util\Collection")]
     function clear(): void {
-        $this->mData->transaction(DataTable::T_CLR);
+        $this->dataset = [
+            "length" => 0,
+            "table" => []
+        ];
     }
 
     /**
@@ -118,7 +144,7 @@ abstract class BaseCollection implements Collection {
      */
     #[Override("im\util\Collection")]
     function length(): int {
-        return $this->mData->transaction(DataTable::T_LEN);
+        return $this->dataset["length"];
     }
 
     /**
@@ -126,13 +152,7 @@ abstract class BaseCollection implements Collection {
      */
     #[Override("im\util\Collection")]
     function toArray(): array {
-        $array = [];
-
-        foreach ($this->mData as $key => $value) {
-            $array[$key] = $value;
-        }
-
-        return $array;
+        return $this->dataset["table"];
     }
 
     /**
@@ -143,14 +163,19 @@ abstract class BaseCollection implements Collection {
         $new = clone $this;
 
         if ($sort != null) {
-            $new->mData->transaction(DataTable::T_CLR);
+            $new->clear();
 
-            foreach ($this->mData as $key => $value) {
+            foreach ($this->dataset["table"] as $key => $value) {
                 if ( ! $sort($key, $value) ) {
                     continue;
                 }
 
-                $new->mData->transaction(DataTable::T_SET, $key, $value);
+                if (is_int($key)) {
+                    $new->dataset["table"][] = $value;
+
+                } else {
+                    $new->dataset["table"][$key] = $value;
+                }
             }
         }
 
@@ -163,22 +188,8 @@ abstract class BaseCollection implements Collection {
      */
     #[Override("im\util\Collection")]
     public function getIterator(): Traversable {
-        return $this->mData->transaction(DataTable::T_ITR);
-    }
-
-    /**
-     * @internal
-     * @php
-     */
-    public function __clone(): void {
-        $this->mData = clone $this->mData;
-    }
-
-    /**
-     * @internal
-     * @php
-     */
-    public function __debugInfo() {
-        return $this->toArray();
+        foreach ($this->dataset["table"] as $key => $value) {
+            yield $key => $value;
+        }
     }
 }
