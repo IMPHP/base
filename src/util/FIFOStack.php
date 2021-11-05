@@ -21,8 +21,6 @@
 
 namespace im\util;
 
-use Exception;
-
 /**
  * A FIFO Stack (Queue) implementation
  */

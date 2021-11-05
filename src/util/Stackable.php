@@ -136,6 +136,7 @@ abstract class Stackable extends BaseCollection {
                 }
 
                 $new->dataset["table"][] = $value;
+                $new->dataset["length"]++;
             }
         }
 

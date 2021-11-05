@@ -100,6 +100,32 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
     }
 
     /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function copy(callable $sort = null): static {
+        $new = clone $this;
+
+        if ($sort != null) {
+            $new->clear();
+
+            foreach ($this->dataset["table"] as $hashkey => $value) {
+                $key = $this->dataset["keys"][$hashkey];
+
+                if ( ! $sort($key, $value) ) {
+                    continue;
+                }
+
+                $new->dataset["table"][$hashkey] = $value;
+                $new->dataset["keys"][$hashkey] = $key;
+                $new->dataset["length"]++;
+            }
+        }
+
+        return $new;
+    }
+
+    /**
      * @internal
      */
     #[Override("im\utils\Collection")]

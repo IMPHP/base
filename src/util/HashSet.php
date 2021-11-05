@@ -89,6 +89,7 @@ class HashSet extends BaseCollection implements ListArray {
                 }
 
                 $new->dataset["table"][$key] = $value;
+                $new->dataset["length"]++;
             }
         }
 

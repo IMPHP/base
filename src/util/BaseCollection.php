@@ -176,6 +176,8 @@ abstract class BaseCollection implements Collection {
                 } else {
                     $new->dataset["table"][$key] = $value;
                 }
+
+                $new->dataset["length"]++;
             }
         }
 
