@@ -21,11 +21,8 @@
 
 namespace im\io;
 
-use im\io\res\StreamDecorator;
-use im\ErrorCatcher;
-
-use const SEEK_SET;
-use const PHP_INT_MAX;
+use im\util\ImmutableMappedArray;
+use im\util\Map;
 
 /**
  * A stream implementation that reads and writes to `NULL`.
@@ -57,65 +54,97 @@ use const PHP_INT_MAX;
  *      $len = $stream->getLength(); // Will return PHP_INT_MAX
  *      ```
  */
-class NullStream implements Stream {
+class NullStream extends BaseStream {
 
-    use StreamDecorator;
+    /** @internal */
+    protected string $mode;
+
+    /** @internal */
+    protected int $pointer = 0;
+
+    /** @internal */
+    protected ImmutableMappedArray $meta;
 
     /**
      * @param $mode
      *      The stream mode to use.
      */
     public function __construct(string $mode = Stream::DEF_MODE) {
-        $catcher = new ErrorCatcher();
-        $res = $catcher->run(function() use ($mode) /*resource*/ {
-            return fopen("php://temp", $mode);
-        });
+        $this->mode = $mode;
+        $this->meta = new Map([
+            "wrapper_type" => "PHP",
+            "stream_type" => "TEMP",
+            "mode" => $mode,
+            "unread_bytes" => 0,
+            "seekable" => 1,
+            "uri" => "php://temp"
+        ]);
+    }
 
-        if ($res == null) {
-            throw $catcher->getException();
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\io\Stream")]
+    public function getMetadata(): ImmutableMappedArray {
+        return $this->meta;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\io\res\Stream")]
+    public function getOffset(): int {
+        return $this->pointer;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\io\res\Stream")]
+    public function seek(int $offset, int $whence = SEEK_SET): bool {
+        if ($this->isSeekable()) {
+            $max = PHP_INT_MAX;
+
+            if ($whence == SEEK_CUR) {
+                $offset += $this->pointer;
+
+            } else if ($whence == SEEK_END) {
+                $offset += PHP_INT_MAX;
+            }
+
+            if ($offset < 0) {
+                return false;
+            }
+
+            $this->pointer = $offset;
+
+            return true;
         }
 
-        $this->stream = new RawStream($res);
+        return false;
     }
 
     /**
      * @inheritDoc
      */
     #[Override("im\io\res\StreamDecorator")]
-    public function getLength(): int {
-        return $this->stream->getFlags() ? PHP_INT_MAX : -1;
+    public function truncate(int $size): bool {
+        if ($this->getFlags(Stream::F_WS) == Stream::F_WS) {
+            $this->pointer = $size;
+
+            return true;
+        }
+
+
+        return false;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\io\res\StreamDecorator")]
-    public function isEOF(): bool {
-        return $this->stream->getFlags() == 0;
-    }
+    #[Override("im\io\Stream")]
+    public function close(): void {
 
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\res\StreamDecorator")]
-    public function getOffset(): int {
-        return $this->stream->getFlags() ? 0 : -1;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\res\StreamDecorator")]
-    public function seek(int $offset, int $whence = SEEK_SET): bool {
-        return $this->stream->isSeekable();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\res\StreamDecorator")]
-    public function rewind(): bool {
-        return $this->stream->isSeekable();
     }
 
     /**
@@ -123,9 +152,11 @@ class NullStream implements Stream {
      */
     #[Override("im\io\res\StreamDecorator")]
     public function write(string $string, bool $expand = false): int {
-        if ($this->stream->isWritable() > 0) {
+        if ($this->isWritable()) {
+            $this->pointer = strlen($string);
+
             // Repport a successful write
-            return strlen($string);
+            return $this->pointer;
         }
 
         return -1;
@@ -136,7 +167,10 @@ class NullStream implements Stream {
      */
     #[Override("im\io\res\StreamDecorator")]
     public function read(int $length): ?string {
-        if ($this->stream->isReadable() > 0) {
+        if ($this->isReadable()) {
+            $this->pointer = $length;
+
+            // Return random data
             return random_bytes($length);
         }
 
@@ -148,8 +182,11 @@ class NullStream implements Stream {
      */
     #[Override("im\io\res\StreamDecorator")]
     public function readLine(int $maxlen = -1): ?string {
-        if ($this->stream->isReadable() > 0) {
-            return random_bytes($maxlen > 0 ? $maxlen : 4096);
+        if ($this->isReadable()) {
+            $this->pointer = $maxlen > 0 ? $maxlen : 4096;
+
+            // Return random data
+            return random_bytes($this->pointer);
         }
 
         return null;
@@ -158,16 +195,8 @@ class NullStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\io\res\StreamDecorator")]
-    public function clear(): bool {
-        return ($this->stream->getFlags() & Stream::F_WS) == F_WS;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\res\StreamDecorator")]
-    public function truncate(int $size): bool {
-        return ($this->stream->getFlags() & Stream::F_WS) == F_WS;
+    #[Override("im\io\Stream")]
+    public function toString(): string {
+        return "";
     }
 }
