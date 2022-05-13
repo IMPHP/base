@@ -21,8 +21,7 @@
 
 namespace im\io;
 
-use im\util\MapArray;
-use const SEEK_SET;
+use im\util\ImmutableMappedArray;
 
 /**
  * Defines a stream resource that can be written and/or read from.
@@ -243,7 +242,8 @@ interface Stream {
      *      Number of bytes to read.
      *
      * @return
-     *      The bytes that was read or `NULL` on EOF.
+     *      The bytes that was read or empty string '' on EOF.
+     *      On error a `NULL` value is returned.
      */
     function read(int $length): ?string;
 
@@ -259,7 +259,8 @@ interface Stream {
      *      Max bytes to read before stop, regardless of line endings.
      *
      * @return
-     *      The bytes that was read or `NULL` on EOF.
+     *      The bytes that was read or empty string '' on EOF.
+     *      On error a `NULL` value is returned.
      */
     function readLine(int $maxlen = -1): ?string;
 
@@ -315,7 +316,7 @@ interface Stream {
      *      Returns the PHP `stream_get_meta_data()` array
      *      as a `MapArray`.
      */
-    public function getMetadata(): MapArray;
+    function getMetadata(): ImmutableMappedArray;
 
     /**
      * Close the underlaying resource.

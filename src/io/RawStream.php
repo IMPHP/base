@@ -21,13 +21,11 @@
 
 namespace im\io;
 
-use im\util\Map;
-use im\util\MapArray;
-use im\exc\StreamException;
+use Throwable;
 use im\ErrorCatcher;
-
-use const SEEK_SET;
-use const SEEK_END;
+use im\exc\StreamException;
+use im\util\ImmutableMappedArray;
+use im\util\Map;
 
 /**
  * A stream implementation that wrappes a PHP `resource`.
@@ -44,7 +42,7 @@ use const SEEK_END;
  *      $stream->close();
  *      ```
  */
-class RawStream implements Stream {
+class RawStream extends BaseStream {
 
     /** @internal */
     protected /*resource*/ $resource;
@@ -60,7 +58,9 @@ class RawStream implements Stream {
      *      A PHP resource to use.
      */
     public function __construct(/*resource*/ $res = null) {
-        if ($res == null) {
+        parent::__construct();
+
+        if ($res === null) {
             $res = fopen('php://temp', 'r+');
 
         } else if (!is_resource($res)) {
@@ -71,24 +71,16 @@ class RawStream implements Stream {
 
         $this->flags |= preg_match(Stream::M_READABLE, $meta["mode"]) ? Stream::F_READABLE : 0;
         $this->flags |= preg_match(Stream::M_WRITABLE, $meta["mode"]) ? Stream::F_WRITABLE : 0;
-        $this->flags |= $meta["seekable"] ? Stream::F_SEEKABLE : 0;
+        $this->flags |= ($meta["seekable"] ?? 0) ? Stream::F_SEEKABLE : 0;
 
-        $this->catcher = new ErrorCatcher(ErrorCatcher::T_THROW);
+        $this->catcher = new ErrorCatcher(ErrorCatcher::T_HALT|ErrorCatcher::T_THROW);
         $this->resource = $res;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\io\Stream")]
-    public function getResource() /*resource*/ {
-        return StreamWrapper::getResource($this);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
+    #[Override("im\io\BaseStream")]
     public function getFlags(int $mask = 0): int {
         return $mask != 0 ? $this->flags & $mask : $this->flags;
     }
@@ -96,93 +88,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\io\Stream")]
-    function getMode(): ?string {
-        return $this->getMetadata()->get("mode");
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
-    public function isWritable(): bool {
-        return ($this->flags & Stream::F_WRITABLE) > 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
-    public function isReadable(): bool {
-        return ($this->flags & Stream::F_READABLE) > 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
-    public function isSeekable(): bool {
-        return ($this->flags & Stream::F_SEEKABLE) > 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
-    public function allocate(int $length): bool {
-        if (($this->flags & Stream::F_RWS) == Stream::F_RWS
-                && strpos($this->getMode(), "a") === false) { // 'a' mode always writes to the end of the stream. Pointer is ignored.
-
-            $offset = $this->getOffset();
-
-            if ($this->seek(0, SEEK_END)) {
-                $end = $this->getOffset();
-                $range = $end - $offset;
-
-                if ($this->write(str_repeat("\0", $length)) == -1) {
-                    return false;
-                }
-
-                if ($range > 0) {
-                    do {
-                        $buflen = $range > 16384 ? 16384 : $range;
-                        $this->seek( ($offset + $range) - $buflen );
-                        $bytes = "";
-                        $bytelen = 0;
-
-                        while ($buflen > $bytelen && ($buff = $this->read($buflen - $bytelen)) != null) {
-                            $bytes .= $buff;
-                            $bytelen += strlen($buff);
-                        }
-
-                        if ($buff === null) {
-                            return false;
-                        }
-
-                        $this->seek( ($offset + $range + $length) - $buflen );
-                        $count = $this->write($bytes);
-                        $range -= $buflen;
-
-                        if ($bytelen != $count) {
-                            return false;
-                        }
-
-                    } while ($range > 0);
-                }
-
-                $this->seek($offset);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
+    #[Override("im\io\BaseStream")]
     public function getLength(): int {
         if ($this->flags > 0) {
             $meta = $this->getMetadata();
@@ -202,18 +108,7 @@ class RawStream implements Stream {
             });
 
             if ($length == -1) {
-                if ($this->flags & Stream::F_SEEKABLE) {
-                    $curpos = $this->getOffset();
-
-                    try {
-                        if ($this->seek(0, SEEK_END)) {
-                            return $this->getOffset();
-                        }
-
-                    } finally {
-                        $this->seek($curpos);
-                    }
-                }
+                return parent::getLength();
             }
         }
 
@@ -242,7 +137,7 @@ class RawStream implements Stream {
     /**
      * @inheritDoc
      */
-    #[Override("im\io\Stream")]
+    #[Override("im\io\BaseStream")]
     public function isEOF(): bool {
         if ($this->flags > 0) {
             $resource = $this->resource;
@@ -283,33 +178,58 @@ class RawStream implements Stream {
      * @inheritDoc
      */
     #[Override("im\io\Stream")]
-    public function rewind(): bool {
-        return $this->seek(0);
+    public function truncate(int $size): bool {
+        if (($this->flags & Stream::F_WS) == Stream::F_WS) {
+            $resource = $this->resource;
+
+            return $this->catcher->run(function() use ($resource, $size) {
+                return ftruncate($this->resource, $size)
+                        && fseek($this->resource, 0, SEEK_END) == 0;
+            });
+        }
+
+        return false;
     }
 
     /**
      * @inheritDoc
      */
     #[Override("im\io\Stream")]
-    public function writeFromStream(Stream $stream): int {
-        if ($stream->getFlags() & Stream::F_READABLE
-                && $this->flags & Stream::F_WRITABLE) {
+    public function close(): void {
+        if ($this->flags > 0) {
+            $resource = $this->resource;
 
-            $source = $stream->getResource();
-            $target = $this->resource;
-            $bytes = $this->catcher->run(function() use ($resource, $source) {
-                return stream_copy_to_stream($source, $target);
+            try {
+                $this->catcher->run(function() use ($resource) {
+                    if (!fclose($resource)) {
+                        // Pipe Resource
+                        pclose($resource);
+                    }
+                });
+
+            } catch (Throwable $e) {}
+
+            $this->flags = 0;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\io\Stream")]
+    public function getMetadata(): ImmutableMappedArray {
+        if ($this->flags > 0) {
+            $resource = $this->resource;
+            $meta = $this->catcher->run(function() use ($resource) {
+                return stream_get_meta_data($this->resource);
             });
 
-            if ($this->catcher->getException() != null) {
-                throw $this->catcher->getException();
-
-            } else if ($bytes !== false) {
-                return $bytes;
+            if (is_array($meta)) {
+                return new Map($meta);
             }
         }
 
-        return -1;
+        return new Map();
     }
 
     /**
@@ -371,99 +291,5 @@ class RawStream implements Stream {
         }
 
         return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
-    public function clear(): bool {
-        return $this->truncate(0);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
-    public function truncate(int $size): bool {
-        if (($this->flags & Stream::F_WS) == Stream::F_WS) {
-            $resource = $this->resource;
-
-            return $this->catcher->run(function() use ($resource, $size) {
-                return ftruncate($this->resource, $size)
-                        && fseek($this->resource, 0, SEEK_END) == 0;
-            });
-        }
-
-        return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
-    public function close(): void {
-        if ($this->flags > 0) {
-            $resource = $this->resource;
-
-            try {
-                $this->catcher->run(function() use ($resource) {
-                    if (!fclose($resource)) {
-                        // Pipe Resource
-                        pclose($resource);
-                    }
-                });
-
-            } catch (Throwable $e) {}
-
-            $this->flags = 0;
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
-    public function getMetadata(): MapArray {
-        if ($this->flags > 0) {
-            $resource = $this->resource;
-            $meta = $this->catcher->run(function() use ($resource) {
-                return stream_get_meta_data($this->resource);
-            });
-
-            if (is_array($meta)) {
-                return new Map($meta);
-            }
-        }
-
-        return new Map();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\io\Stream")]
-    public function toString(): string {
-        if ($this->flags > 0) {
-            if (($this->flags & Stream::F_RS) == Stream::F_RS) {
-                rewind($this->resource);
-
-                $content = stream_get_contents($this->resource);
-
-                if ($content !== false) {
-                    return $content;
-                }
-            }
-        }
-
-        return "";
-    }
-
-    /**
-     * @internal
-     * @php
-     */
-    public function __toString() {
-        return $this->toString();
     }
 }

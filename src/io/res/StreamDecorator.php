@@ -21,11 +21,9 @@
 
 namespace im\io\res;
 
-use im\util\Map;
+use im\util\ImmutableMappedArray;
 use im\io\Stream;
 use im\io\StreamWrapper;
-
-use const SEEK_SET;
 
 /**
  * Provides implementation for `im\io\Stream`.
@@ -197,7 +195,7 @@ trait StreamDecorator {
      * @inheritDoc
      */
     #[Override("im\io\Stream")]
-    public function getMetadata(): Map {
+    public function getMetadata(): ImmutableMappedArray {
         return $this->stream->getMetadata();
     }
 
