@@ -47,19 +47,13 @@ use const SEEK_END;
 class RawStream implements Stream {
 
     /** @internal */
-    protected /*resource*/ $mResource;
+    protected /*resource*/ $resource;
 
     /** @internal */
-    protected int $mFlags = 0;
+    protected int $flags = 0;
 
     /** @internal */
-    protected ?string $mMode;
-
-    /** @internal */
-    protected array $mMeta;
-
-    /** @internal */
-    protected ErrorCatcher $mCatcher;
+    protected ErrorCatcher $catcher;
 
     /**
      * @param resource $res
@@ -75,13 +69,12 @@ class RawStream implements Stream {
 
         $meta = stream_get_meta_data($res);
 
-        $this->mFlags |= preg_match(Stream::M_READABLE, $meta["mode"]) ? Stream::F_READABLE : 0;
-        $this->mFlags |= preg_match(Stream::M_WRITABLE, $meta["mode"]) ? Stream::F_WRITABLE : 0;
-        $this->mFlags |= $meta["seekable"] ? Stream::F_SEEKABLE : 0;
-        $this->mResource = $res;
-        $this->mMeta = $meta;
-        $this->mMode = $meta["mode"];
-        $this->mCatcher = new ErrorCatcher(FALSE);
+        $this->flags |= preg_match(Stream::M_READABLE, $meta["mode"]) ? Stream::F_READABLE : 0;
+        $this->flags |= preg_match(Stream::M_WRITABLE, $meta["mode"]) ? Stream::F_WRITABLE : 0;
+        $this->flags |= $meta["seekable"] ? Stream::F_SEEKABLE : 0;
+
+        $this->catcher = new ErrorCatcher(FALSE);
+        $this->resource = $res;
     }
 
     /**
@@ -97,7 +90,7 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function getFlags(): int {
-        return $this->mFlags;
+        return $this->flags;
     }
 
     /**
@@ -105,7 +98,7 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     function getMode(): ?string {
-        return $this->mMode;
+        return $this->getMetadata()->get("mode");
     }
 
     /**
@@ -113,7 +106,7 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function isWritable(): bool {
-        return ($this->mFlags & Stream::F_WRITABLE) > 0;
+        return ($this->flags & Stream::F_WRITABLE) > 0;
     }
 
     /**
@@ -121,7 +114,7 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function isReadable(): bool {
-        return ($this->mFlags & Stream::F_READABLE) > 0;
+        return ($this->flags & Stream::F_READABLE) > 0;
     }
 
     /**
@@ -129,7 +122,7 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function isSeekable(): bool {
-        return ($this->mFlags & Stream::F_SEEKABLE) > 0;
+        return ($this->flags & Stream::F_SEEKABLE) > 0;
     }
 
     /**
@@ -137,15 +130,36 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function getLength(): int {
-        if ($this->mFlags > 0) {
-            if (!empty($this->mMeta["uri"])) {
-                clearstatcache(true, $this->mMeta["uri"]);
-            }
+        if ($this->flags > 0) {
+            $meta = $this->getMetadata();
+            $resource = $this->resource;
+            $length = $this->catcher->run(function() use ($meta, $resource) {
+                if ($meta->isset("uri")) {
+                    clearstatcache(true, $meta->get("uri"));
+                }
 
-            $stat = fstat($this->mResource);
+                $stat = fstat($resource);
 
-            if (is_array($stat)) {
-                return fstat($this->mResource)["size"] ?? -1;
+                if (is_array($stat)) {
+                    return fstat($resource)["size"] ?? -1;
+                }
+
+                return -1;
+            });
+
+            if ($length == -1) {
+                if ($this->flags & Stream::F_SEEKABLE) {
+                    $curpos = $this->getOffset();
+
+                    try {
+                        if ($this->seek(0, SEEK_END)) {
+                            return $this->getOffset();
+                        }
+
+                    } finally {
+                        $this->seek($curpos);
+                    }
+                }
             }
         }
 
@@ -157,8 +171,8 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function getOffset(): int {
-        if ($this->mFlags > 0) {
-            $pos = ftell($this->mResource);
+        if ($this->flags > 0) {
+            $pos = ftell($this->resource);
 
             if ($pos !== false) {
                 return $pos;
@@ -173,8 +187,8 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function isEOF(): bool {
-        if ($this->mFlags > 0) {
-            return feof($this->mResource);
+        if ($this->flags > 0) {
+            return feof($this->resource);
         }
 
         return true;
@@ -185,12 +199,12 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function seek(int $offset, int $whence = SEEK_SET): bool {
-        if ($this->mFlags & Stream::F_SEEKABLE) {
+        if ($this->flags & Stream::F_SEEKABLE) {
             if ($offset < 0 && $whence == SEEK_SET) {
                 $whence = SEEK_END;
             }
 
-            return fseek($this->mResource, $offset, $whence) == 0;
+            return fseek($this->resource, $offset, $whence) == 0;
         }
 
         return false;
@@ -201,8 +215,8 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function rewind(): bool {
-        if ($this->mFlags & Stream::F_SEEKABLE) {
-            return rewind($this->mResource);
+        if ($this->flags & Stream::F_SEEKABLE) {
+            return rewind($this->resource);
         }
 
         return false;
@@ -214,16 +228,16 @@ class RawStream implements Stream {
     #[Override("im\io\Stream")]
     public function writeFromStream(Stream $stream): int {
         if ($stream->getFlags() & Stream::F_READABLE
-                && $this->mFlags & Stream::F_WRITABLE) {
+                && $this->flags & Stream::F_WRITABLE) {
 
             $source = $stream->getResource();
-            $target = $this->mResource;
-            $bytes = $this->mCatcher->run(function() use ($resource, $source) {
+            $target = $this->resource;
+            $bytes = $this->catcher->run(function() use ($resource, $source) {
                 return stream_copy_to_stream($source, $target);
             });
 
-            if ($this->mCatcher->getException() != null) {
-                throw $this->mCatcher->getException();
+            if ($this->catcher->getException() != null) {
+                throw $this->catcher->getException();
 
             } else if ($bytes !== false) {
                 return $bytes;
@@ -238,33 +252,33 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function write(string $string, bool $expand = false): int {
-        if ($this->mFlags & Stream::F_WRITABLE) {
-            $resource = $this->mResource;
+        if ($this->flags & Stream::F_WRITABLE) {
+            $resource = $this->resource;
             $bytes = -1;
 
             if (!$expand) {
-                $bytes = $this->mCatcher->run(function() use ($resource, &$string) {
-                    return fwrite($this->mResource, $string);
+                $bytes = $this->catcher->run(function() use ($resource, &$string) {
+                    return fwrite($this->resource, $string);
                 });
 
-            } else if ($this->mFlags & Stream::F_SEEKABLE
-                        && $this->mFlags & Stream::F_READABLE) {
+            } else if ($this->flags & Stream::F_SEEKABLE
+                        && $this->flags & Stream::F_READABLE) {
 
-                $bytes = $this->mCatcher->run(function() use ($resource, &$string) {
-                    $pos = ftell($this->mResource);
+                $bytes = $this->catcher->run(function() use ($resource, &$string) {
+                    $pos = ftell($this->resource);
                     $tmpres = fopen('php://temp', 'r+');
 
                     if (is_resource($tmpres)
-                            && stream_copy_to_stream($this->mResource, $tmpres) !== FALSE) {
+                            && stream_copy_to_stream($this->resource, $tmpres) !== FALSE) {
 
-                        fseek($this->mResource, $pos, SEEK_SET);
+                        fseek($this->resource, $pos, SEEK_SET);
                         fseek($tmpres, 0, SEEK_SET);
 
-                        $bytes = fwrite($this->mResource, $string);
+                        $bytes = fwrite($this->resource, $string);
 
                         try {
                             if ($bytes !== false) {
-                                stream_copy_to_stream($tmpres, $this->mResource);
+                                stream_copy_to_stream($tmpres, $this->resource);
 
                                 return $bytes;
                             }
@@ -278,8 +292,8 @@ class RawStream implements Stream {
                 });
             }
 
-            if ($this->mCatcher->getException() != null) {
-                throw $this->mCatcher->getException();
+            if ($this->catcher->getException() != null) {
+                throw $this->catcher->getException();
 
             } else if ($bytes !== false) {
                 return $bytes;
@@ -294,11 +308,11 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function read(int $length): ?string {
-        if ($this->mFlags & Stream::F_READABLE) {
-            $resource = $this->mResource;
+        if ($this->flags & Stream::F_READABLE) {
+            $resource = $this->resource;
 
             do {
-                $data = $this->mCatcher->run(function() use ($resource, $length) {
+                $data = $this->catcher->run(function() use ($resource, $length) {
                     $data = fread($resource, $length);
 
                     if (!empty($data)) {
@@ -312,10 +326,10 @@ class RawStream implements Stream {
                     break;
                 }
 
-            } while (!feof($this->mResource));
+            } while (!feof($this->resource));
 
-            if ($this->mCatcher->getException() != null) {
-                throw $this->mCatcher->getException();
+            if ($this->catcher->getException() != null) {
+                throw $this->catcher->getException();
             }
 
             return $data;
@@ -329,11 +343,11 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function readLine(int $maxlen = -1): ?string {
-        if ($this->mFlags & Stream::F_READABLE) {
-            $resource = $this->mResource;
+        if ($this->flags & Stream::F_READABLE) {
+            $resource = $this->resource;
 
             do {
-                $data = $this->mCatcher->run(function() use ($resource, $maxlen) {
+                $data = $this->catcher->run(function() use ($resource, $maxlen) {
                     $data = fgets($resource, $maxlen > 0 ? $maxlen : null);
 
                     if (!empty($data)) {
@@ -347,10 +361,10 @@ class RawStream implements Stream {
                     break;
                 }
 
-            } while (!feof($this->mResource));
+            } while (!feof($this->resource));
 
-            if ($this->mCatcher->getException() != null) {
-                throw $this->mCatcher->getException();
+            if ($this->catcher->getException() != null) {
+                throw $this->catcher->getException();
             }
 
             if ($data != null) {
@@ -366,9 +380,9 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function clear(): bool {
-        if (($this->mFlags & Stream::F_WS) == Stream::F_WS) {
-            return ftruncate($this->mResource, 0)
-                    && rewind($this->mResource);
+        if (($this->flags & Stream::F_WS) == Stream::F_WS) {
+            return ftruncate($this->resource, 0)
+                    && rewind($this->resource);
         }
 
         return false;
@@ -379,9 +393,9 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function truncate(int $size): bool {
-        if (($this->mFlags & Stream::F_WS) == Stream::F_WS) {
-            return ftruncate($this->mResource, $size)
-                    && fseek($this->mResource, 0, SEEK_END);
+        if (($this->flags & Stream::F_WS) == Stream::F_WS) {
+            return ftruncate($this->resource, $size)
+                    && fseek($this->resource, 0, SEEK_END);
         }
 
         return false;
@@ -392,16 +406,16 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function close(): void {
-        if ($this->mFlags > 0) {
-            $resource = $this->mResource;
-            $this->mCatcher->run(function() use ($resource) {
+        if ($this->flags > 0) {
+            $resource = $this->resource;
+            $this->catcher->run(function() use ($resource) {
                 if (!fclose($resource)) {
                     // Pipe Resource
                     pclose($resource);
                 }
             });
 
-            $this->mFlags = 0;
+            $this->flags = 0;
             $this->mMeta = [];
         }
     }
@@ -411,7 +425,18 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function getMetadata(): MapArray {
-        return new Map( $this->mMeta );
+        if ($this->flags > 0) {
+            $resource = $this->resource;
+            $meta = $this->catcher->run(function() use ($resource) {
+                return stream_get_meta_data($this->resource);
+            });
+
+            if (is_array($meta)) {
+                return new Map($meta);
+            }
+        }
+
+        return new Map();
     }
 
     /**
@@ -419,11 +444,11 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function toString(): string {
-        if ($this->mFlags > 0) {
-            if (($this->mFlags & Stream::F_RS) == Stream::F_RS) {
-                rewind($this->mResource);
+        if ($this->flags > 0) {
+            if (($this->flags & Stream::F_RS) == Stream::F_RS) {
+                rewind($this->resource);
 
-                $content = stream_get_contents($this->mResource);
+                $content = stream_get_contents($this->resource);
 
                 if ($content !== false) {
                     return $content;
