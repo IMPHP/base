@@ -342,29 +342,13 @@ class RawStream implements Stream {
     public function read(int $length): ?string {
         if ($this->flags & Stream::F_READABLE) {
             $resource = $this->resource;
+            $bytes = $this->catcher->run(function() use ($length, $resource) {
+                return fread($resource, $length);
+            });
 
-            do {
-                $data = $this->catcher->run(function() use ($resource, $length) {
-                    $data = fread($resource, $length);
-
-                    if (!empty($data)) {
-                        return $data;
-                    }
-
-                    return null;
-                });
-
-                if ($data != null) {
-                    break;
-                }
-
-            } while (!feof($this->resource));
-
-            if ($this->catcher->getException() != null) {
-                throw $this->catcher->getException();
+            if ($bytes !== false) {
+                return empty($bytes) ? "" : $bytes;
             }
-
-            return $data;
         }
 
         return null;
@@ -377,30 +361,12 @@ class RawStream implements Stream {
     public function readLine(int $maxlen = -1): ?string {
         if ($this->flags & Stream::F_READABLE) {
             $resource = $this->resource;
+            $bytes = $this->catcher->run(function() use ($maxlen, $resource) {
+                return fgets($resource, $maxlen > 0 ? $maxlen : null);
+            });
 
-            do {
-                $data = $this->catcher->run(function() use ($resource, $maxlen) {
-                    $data = fgets($resource, $maxlen > 0 ? $maxlen : null);
-
-                    if (!empty($data)) {
-                        return $data;
-                    }
-
-                    return null;
-                });
-
-                if ($data != null) {
-                    break;
-                }
-
-            } while (!feof($this->resource));
-
-            if ($this->catcher->getException() != null) {
-                throw $this->catcher->getException();
-            }
-
-            if ($data != null) {
-                return strrpos($data, "\n", -1) !== false ? substr($data, 0, -1) : $data;
+            if ($bytes !== false || $this->isEOF()) { // fgets may return false on both error and eof.
+                return ($bytes === false || empty($bytes)) ? "" : rtrim($bytes, "\r\n");
             }
         }
 
