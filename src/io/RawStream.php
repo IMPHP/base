@@ -89,8 +89,8 @@ class RawStream implements Stream {
      * @inheritDoc
      */
     #[Override("im\io\Stream")]
-    public function getFlags(): int {
-        return $this->flags;
+    public function getFlags(int $mask = 0): int {
+        return $mask != 0 ? $this->flags & $mask : $this->flags;
     }
 
     /**

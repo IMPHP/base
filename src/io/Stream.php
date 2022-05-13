@@ -110,8 +110,11 @@ interface Stream {
      *
      * You can use the `Stream::F_` constants to sort
      * out the different bits and their meaning.
+     *
+     * @param $mask
+     *      Mask to sort the flags before returning them
      */
-    function getFlags(): int;
+    function getFlags(int $mask = 0): int;
 
     /**
      * Returns the mode used by this stream

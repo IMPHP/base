@@ -69,8 +69,8 @@ trait StreamDecorator {
      * @inheritDoc
      */
     #[Override("im\io\Stream")]
-    public function getFlags(): int {
-        return $this->stream->getFlags();
+    public function getFlags(int $mask = 0): int {
+        return $this->stream->getFlags($mask);
     }
 
     /**
