@@ -73,7 +73,7 @@ class RawStream implements Stream {
         $this->flags |= preg_match(Stream::M_WRITABLE, $meta["mode"]) ? Stream::F_WRITABLE : 0;
         $this->flags |= $meta["seekable"] ? Stream::F_SEEKABLE : 0;
 
-        $this->catcher = new ErrorCatcher(FALSE);
+        $this->catcher = new ErrorCatcher(ErrorCatcher::T_THROW);
         $this->resource = $res;
     }
 
