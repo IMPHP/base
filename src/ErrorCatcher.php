@@ -35,25 +35,35 @@ use Closure;
  */
 class ErrorCatcher {
 
+    /**
+     * Halt execution on the first PHP error
+     */
+    const T_HALT = 0x01;
+
+    /**
+     * Halt and throw exception on the first PHP error
+     */
+    const T_THROW = 0x03;
+
     /** @ignore */
     protected ?Throwable $mException = null;
 
     /** @ignore */
-    protected bool $mAlwaysThrow;
+    protected int $mThrowFlags;
 
     /** @ignore */
     protected Closure $mHandler;
 
     /**
-     * @param $throwOnError
-     *      If true, the code will stop at the first error or warning being triggered
+     * @param $onError
+     *      Set this to `T_HALT` or `T_THROW` depending on what to do on errors
      */
-    public function __construct(bool $throwOnError = true) {
-        $this->mAlwaysThrow = $throwOnError;
+    public function __construct(int $onError = ErrorCatcher::T_HALT) {
+        $this->mThrowFlags = $onError;
         $this->mHandler = Closure::fromCallable(function($severity, $message, $filename, $lineno){
             $this->mException = new ErrorException($message, 0, $severity, $filename, $lineno);
 
-            if ($this->mAlwaysThrow) {
+            if ($this->mThrowFlags & ErrorCatcher::T_HALT) {
                 throw $this->mException;
             }
 
@@ -76,7 +86,7 @@ class ErrorCatcher {
      * @return
      *      Returns the value that was returned from the callable or `NULL`
      *      if it failed due to an error. You can check `getException`
-     *      to see if there was an error. 
+     *      to see if there was an error.
      */
     public function run(callable $callable): mixed {
         $this->mException = null;
@@ -91,6 +101,10 @@ class ErrorCatcher {
 
         } finally {
             restore_error_handler();
+        }
+
+        if ($this->mThrowFlags & ErrorCatcher::T_THROW) {
+            throw $this->mException;
         }
 
         return null;
