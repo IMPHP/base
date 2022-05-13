@@ -140,4 +140,25 @@ final class HashMapTest extends TestCase {
             $this->Map->find("MyValue")
         );
     }
+
+    /**
+     *
+     */
+    public function test_copy(): void {
+        $this->Map->addIterable([
+            "key1" => "test1",
+            "key2" => "test2",
+            "key3" => "test3",
+            "key4" => "test4",
+            "key5" => "test5",
+            "key6" => "test6"]
+        );
+
+        $newList = $this->Map->copy(function($key, $value){
+            return $value == "test2" || $value == "test5";
+        });
+
+        $this->assertEquals(2, $newList->length());
+        $this->assertEquals("test2", $newList->get("key2"));
+    }
 }

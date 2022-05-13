@@ -115,4 +115,20 @@ final class HashSetTest extends TestCase {
             $this->List->toArray()
         );
     }
+
+    /**
+     *
+     */
+    public function test_copy(): void {
+        $this->List->addIterable(["test1", "test2", "test3", "test4", "test5", "test6"]);
+        $newList = $this->List->copy(function($key, $value){
+            return $value == "test2" || $value == "test5";
+        });
+
+        $this->assertEquals(2, $newList->length());
+
+        foreach ($newList as $value) {
+            $this->assertEquals("test2", $value); break;
+        }
+    }
 }
