@@ -172,7 +172,10 @@ class RawStream implements Stream {
     #[Override("im\io\Stream")]
     public function getOffset(): int {
         if ($this->flags > 0) {
-            $pos = ftell($this->resource);
+            $resource = $this->resource;
+            $pos = $this->catcher->run(function() use ($resource) {
+                return ftell($this->resource);
+            });
 
             if ($pos !== false) {
                 return $pos;
@@ -188,7 +191,12 @@ class RawStream implements Stream {
     #[Override("im\io\Stream")]
     public function isEOF(): bool {
         if ($this->flags > 0) {
-            return feof($this->resource);
+            $resource = $this->resource;
+            $eof = $this->catcher->run(function() use ($resource) {
+                return feof($this->resource);
+            });
+
+            return $eof;
         }
 
         return true;
@@ -204,7 +212,14 @@ class RawStream implements Stream {
                 $whence = SEEK_END;
             }
 
-            return fseek($this->resource, $offset, $whence) == 0;
+            $resource = $this->resource;
+            $seek = $this->catcher->run(function() use ($resource, $offset, $whence) {
+                return fseek($resource, $offset, $whence);
+            });
+
+            if ($seek == 0) {
+                return true;
+            }
         }
 
         return false;
@@ -215,11 +230,7 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function rewind(): bool {
-        if ($this->flags & Stream::F_SEEKABLE) {
-            return rewind($this->resource);
-        }
-
-        return false;
+        return $this->seek(0);
     }
 
     /**
@@ -380,12 +391,7 @@ class RawStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function clear(): bool {
-        if (($this->flags & Stream::F_WS) == Stream::F_WS) {
-            return ftruncate($this->resource, 0)
-                    && rewind($this->resource);
-        }
-
-        return false;
+        return $this->truncate(0);
     }
 
     /**
@@ -394,8 +400,12 @@ class RawStream implements Stream {
     #[Override("im\io\Stream")]
     public function truncate(int $size): bool {
         if (($this->flags & Stream::F_WS) == Stream::F_WS) {
-            return ftruncate($this->resource, $size)
-                    && fseek($this->resource, 0, SEEK_END);
+            $resource = $this->resource;
+
+            return $this->catcher->run(function() use ($resource, $size) {
+                return ftruncate($this->resource, $size)
+                        && fseek($this->resource, 0, SEEK_END) == 0;
+            });
         }
 
         return false;
@@ -408,15 +418,18 @@ class RawStream implements Stream {
     public function close(): void {
         if ($this->flags > 0) {
             $resource = $this->resource;
-            $this->catcher->run(function() use ($resource) {
-                if (!fclose($resource)) {
-                    // Pipe Resource
-                    pclose($resource);
-                }
-            });
+
+            try {
+                $this->catcher->run(function() use ($resource) {
+                    if (!fclose($resource)) {
+                        // Pipe Resource
+                        pclose($resource);
+                    }
+                });
+
+            } catch (Throwable $e) {}
 
             $this->flags = 0;
-            $this->mMeta = [];
         }
     }
 
