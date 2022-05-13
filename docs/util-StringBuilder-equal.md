@@ -7,7 +7,7 @@ Check to see if this string is equal to a specified string.
 
 ## Synopsis
 ```php
-public equal(Stringable|string $text, bool $ci = FALSE): bool
+public equal(string $text, bool $ci = FALSE): bool
 ```
 
 ## Parameters

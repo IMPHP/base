@@ -9,7 +9,7 @@ Get the metadata for the underlaying resource.
 
 ## Synopsis
 ```php
-public getMetadata(): im\util\Map
+public getMetadata(): im\util\ImmutableMappedArray
 ```
 
 ## Return

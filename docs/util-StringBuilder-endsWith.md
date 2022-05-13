@@ -7,7 +7,7 @@ Check to see if this string ends with a specified substring.
 
 ## Synopsis
 ```php
-public endsWith(Stringable|string $text, bool $ci = FALSE): bool
+public endsWith(string $text, bool $ci = FALSE): bool
 ```
 
 ## Parameters

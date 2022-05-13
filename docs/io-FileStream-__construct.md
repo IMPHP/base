@@ -4,5 +4,5 @@ ____
 
 ## Synopsis
 ```php
-public __construct(string $file, string $mode = im\io\Stream::DEF_MODE, bool $lazy = FALSE)
+public __construct(string $file = 'php://temp', string $mode = im\io\Stream::DEF_MODE, bool $lazy = FALSE)
 ```

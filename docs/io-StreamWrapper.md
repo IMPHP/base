@@ -22,7 +22,7 @@ class StreamWrapper {
     public string NAME = 'imphp'
 
     // Methods
-    public static getResource(im\io\Stream $stream): resource
+    public static getResource(im\io\Stream $stream, bool $noClose = TRUE): resource
 }
 ```
 

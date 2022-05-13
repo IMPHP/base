@@ -7,7 +7,7 @@ Prepend strings to the beginning of the current string.
 
 ## Synopsis
 ```php
-prepend(Stringable|string ...$texts): void
+prepend(string ...$texts): void
 ```
 
 ## Parameters

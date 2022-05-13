@@ -25,9 +25,9 @@ class FileStream implements im\io\Stream uses im\io\res\StreamDecorator {
     public int F_RWS = 0b11100
 
     // Methods
-    public __construct(string $file, string $mode = im\io\Stream::DEF_MODE, bool $lazy = FALSE)
+    public __construct(string $file = 'php://temp', string $mode = im\io\Stream::DEF_MODE, bool $lazy = FALSE)
     public getResource(): resource
-    public getFlags(): int
+    public getFlags(int $mask = 0): int
     public getMode(): null|string
     public isWritable(): bool
     public isReadable(): bool
@@ -35,7 +35,7 @@ class FileStream implements im\io\Stream uses im\io\res\StreamDecorator {
     public getLength(): int
     public getOffset(): int
     public isEOF(): bool
-    public seek(int $offset, int $whence = SEEK_SET): bool
+    public seek(int $offset, int $whence = im\io\res\SEEK_SET): bool
     public rewind(): bool
     public writeFromStream(im\io\Stream $stream): int
     public write(string $string, bool $expand = FALSE): int
@@ -43,8 +43,9 @@ class FileStream implements im\io\Stream uses im\io\res\StreamDecorator {
     public readLine(int $maxlen = -1): null|string
     public clear(): bool
     public truncate(int $size): bool
-    public getMetadata(): im\util\Map
+    public getMetadata(): im\util\ImmutableMappedArray
     public close(): void
+    public allocate(int $length): bool
     public toString(): string
 }
 ```
@@ -84,6 +85,7 @@ class FileStream implements im\io\Stream uses im\io\res\StreamDecorator {
 | [__FileStream&nbsp;::&nbsp;truncate__](io-FileStream-truncate.md) | Truncates a file to `$size` length |
 | [__FileStream&nbsp;::&nbsp;getMetadata__](io-FileStream-getMetadata.md) | Get the metadata for the underlaying resource |
 | [__FileStream&nbsp;::&nbsp;close__](io-FileStream-close.md) | Close the underlaying resource |
+| [__FileStream&nbsp;::&nbsp;allocate__](io-FileStream-allocate.md) | Allocate space at the pointer location |
 | [__FileStream&nbsp;::&nbsp;toString__](io-FileStream-toString.md) | Read and return the entire stream content |
 
 ## Example 1

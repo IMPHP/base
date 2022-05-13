@@ -10,7 +10,7 @@ Any new reads or writes will be performed from this offset in the stream.
 
 ## Synopsis
 ```php
-public seek(int $offset, int $whence = SEEK_SET): bool
+public seek(int $offset, int $whence = im\io\res\SEEK_SET): bool
 ```
 
 ## Parameters

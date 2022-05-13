@@ -10,5 +10,10 @@ out the different bits and their meaning.
 
 ## Synopsis
 ```php
-public getFlags(): int
+public getFlags(int $mask = 0): int
 ```
+
+## Parameters
+| Name | Description |
+| :--- | :---------- |
+| mask | Mask to sort the flags before returning them |

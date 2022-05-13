@@ -14,12 +14,22 @@ code in PHP, rather than having it printet to stdout.
 ```php
 class ErrorCatcher {
 
+    // Constants
+    public T_HALT = 1
+    public T_THROW = 3
+
     // Methods
-    public __construct(bool $throwOnError = TRUE)
+    public __construct(int $onError = im\ErrorCatcher::T_HALT)
     public run(callable $callable): mixed
     public getException(): null|Throwable
 }
 ```
+
+## Constants
+| Name | Description |
+| :--- | :---------- |
+| [__ErrorCatcher&nbsp;::&nbsp;T\_HALT__](base-ErrorCatcher-prop_T_HALT.md) | Halt execution on the first PHP error |
+| [__ErrorCatcher&nbsp;::&nbsp;T\_THROW__](base-ErrorCatcher-prop_T_THROW.md) | Halt and throw exception on the first PHP error |
 
 ## Methods
 | Name | Description |

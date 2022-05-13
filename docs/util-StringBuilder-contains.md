@@ -7,7 +7,7 @@ Check to see if this string contains a specified substring.
 
 ## Synopsis
 ```php
-public contains(Stringable|string $text, bool $ci = FALSE): bool
+public contains(string $text, bool $ci = FALSE): bool
 ```
 
 ## Parameters

@@ -7,7 +7,7 @@ Append strings to the end of the current string.
 
 ## Synopsis
 ```php
-public append(Stringable|string ...$texts): void
+public append(string ...$texts): void
 ```
 
 ## Parameters

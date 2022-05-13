@@ -7,7 +7,7 @@ Check to see if this string begins with a specified substring.
 
 ## Synopsis
 ```php
-public beginsWith(Stringable|string $text, bool $ci = FALSE): bool
+public beginsWith(string $text, bool $ci = FALSE): bool
 ```
 
 ## Parameters

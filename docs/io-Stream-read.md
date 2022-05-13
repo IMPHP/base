@@ -16,4 +16,5 @@ read(int $length): null|string
 | length | Number of bytes to read. |
 
 ## Return
-The bytes that was read or `NULL` on EOF.
+The bytes that was read or empty string '' on EOF.
+On error a `NULL` value is returned.

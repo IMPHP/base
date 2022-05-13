@@ -18,9 +18,10 @@ Small IO package that is bundled with IMPHP Base.
 ## Classes
 | Name | Description |
 | :--- | :---------- |
+| [BaseStream](io-BaseStream.md) | Base stream that implements some basics from the `Stream` interface |
 | [RawStream](io-RawStream.md) | A stream implementation that wrappes a PHP `resource` |
 | [FileStream](io-FileStream.md) | A stream implementation that can lazyly open files |
 | [NullStream](io-NullStream.md) | A stream implementation that reads and writes to `NULL` |
+| [StringStream](io-StringStream.md) | A string based Stream implementation |
 | [StreamWrapper](io-StreamWrapper.md) | Stream wrapper that is used to convert a Stream into a valid PHP resource |
-| [GZipStream](io-GZipStream.md) | A CompressionStream that is backed by GZip DEFLATE  This stream will compress and decompress all data that is read from and written to the backing stream |
 | [CompressionHeader](io-CompressionHeader.md) | Internal helper class for `im\io\CompressionStream` implementations |

@@ -18,7 +18,7 @@ trait StreamDecorator implements Stringable {
 
     // Methods
     public getResource(): resource
-    public getFlags(): int
+    public getFlags(int $mask = 0): int
     public getMode(): null|string
     public isWritable(): bool
     public isReadable(): bool
@@ -26,7 +26,7 @@ trait StreamDecorator implements Stringable {
     public getLength(): int
     public getOffset(): int
     public isEOF(): bool
-    public seek(int $offset, int $whence = SEEK_SET): bool
+    public seek(int $offset, int $whence = im\io\res\SEEK_SET): bool
     public rewind(): bool
     public writeFromStream(im\io\Stream $stream): int
     public write(string $string, bool $expand = FALSE): int
@@ -34,8 +34,9 @@ trait StreamDecorator implements Stringable {
     public readLine(int $maxlen = -1): null|string
     public clear(): bool
     public truncate(int $size): bool
-    public getMetadata(): im\util\Map
+    public getMetadata(): im\util\ImmutableMappedArray
     public close(): void
+    public allocate(int $length): bool
     public toString(): string
 }
 ```
@@ -67,6 +68,7 @@ trait StreamDecorator implements Stringable {
 | [__StreamDecorator&nbsp;::&nbsp;truncate__](io-StreamDecorator-truncate.md) | Truncates a file to `$size` length |
 | [__StreamDecorator&nbsp;::&nbsp;getMetadata__](io-StreamDecorator-getMetadata.md) | Get the metadata for the underlaying resource |
 | [__StreamDecorator&nbsp;::&nbsp;close__](io-StreamDecorator-close.md) | Close the underlaying resource |
+| [__StreamDecorator&nbsp;::&nbsp;allocate__](io-StreamDecorator-allocate.md) | Allocate space at the pointer location |
 | [__StreamDecorator&nbsp;::&nbsp;toString__](io-StreamDecorator-toString.md) | Read and return the entire stream content |
 
 ## Example 1

@@ -44,7 +44,7 @@ interface CompressionStream implements im\io\Stream {
 
     // Inherited Methods
     getResource(): resource
-    getFlags(): int
+    getFlags(int $mask = 0): int
     getMode(): null|string
     isWritable(): bool
     isReadable(): bool
@@ -52,15 +52,16 @@ interface CompressionStream implements im\io\Stream {
     getLength(): int
     getOffset(): int
     isEOF(): bool
-    seek(int $offset, int $whence = SEEK_SET): bool
+    seek(int $offset, int $whence = im\io\SEEK_SET): bool
     rewind(): bool
     writeFromStream(im\io\Stream $stream): int
     write(string $string, bool $expand = FALSE): int
     read(int $length): null|string
     readLine(int $maxlen = -1): null|string
+    allocate(int $length): bool
     clear(): bool
     truncate(int $size): bool
-    getMetadata(): im\util\MapArray
+    getMetadata(): im\util\ImmutableMappedArray
     close(): void
     toString(): string
 }
@@ -103,6 +104,7 @@ interface CompressionStream implements im\io\Stream {
 | [__CompressionStream&nbsp;::&nbsp;write__](io-CompressionStream-write.md) | Write data to the stream |
 | [__CompressionStream&nbsp;::&nbsp;read__](io-CompressionStream-read.md) | Read `$length` bytes from the stream |
 | [__CompressionStream&nbsp;::&nbsp;readLine__](io-CompressionStream-readLine.md) | Read a line from the stream |
+| [__CompressionStream&nbsp;::&nbsp;allocate__](io-CompressionStream-allocate.md) | Allocate space at the pointer location |
 | [__CompressionStream&nbsp;::&nbsp;clear__](io-CompressionStream-clear.md) | Clear the entire stream |
 | [__CompressionStream&nbsp;::&nbsp;truncate__](io-CompressionStream-truncate.md) | Truncates a file to `$size` length |
 | [__CompressionStream&nbsp;::&nbsp;getMetadata__](io-CompressionStream-getMetadata.md) | Get the metadata for the underlaying resource |

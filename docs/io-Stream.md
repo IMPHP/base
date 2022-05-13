@@ -21,7 +21,7 @@ interface Stream {
 
     // Methods
     getResource(): resource
-    getFlags(): int
+    getFlags(int $mask = 0): int
     getMode(): null|string
     isWritable(): bool
     isReadable(): bool
@@ -29,15 +29,16 @@ interface Stream {
     getLength(): int
     getOffset(): int
     isEOF(): bool
-    seek(int $offset, int $whence = SEEK_SET): bool
+    seek(int $offset, int $whence = im\io\SEEK_SET): bool
     rewind(): bool
     writeFromStream(im\io\Stream $stream): int
     write(string $string, bool $expand = FALSE): int
     read(int $length): null|string
     readLine(int $maxlen = -1): null|string
+    allocate(int $length): bool
     clear(): bool
     truncate(int $size): bool
-    getMetadata(): im\util\MapArray
+    getMetadata(): im\util\ImmutableMappedArray
     close(): void
     toString(): string
 }
@@ -73,6 +74,7 @@ interface Stream {
 | [__Stream&nbsp;::&nbsp;write__](io-Stream-write.md) | Write data to the stream |
 | [__Stream&nbsp;::&nbsp;read__](io-Stream-read.md) | Read `$length` bytes from the stream |
 | [__Stream&nbsp;::&nbsp;readLine__](io-Stream-readLine.md) | Read a line from the stream |
+| [__Stream&nbsp;::&nbsp;allocate__](io-Stream-allocate.md) | Allocate space at the pointer location |
 | [__Stream&nbsp;::&nbsp;clear__](io-Stream-clear.md) | Clear the entire stream |
 | [__Stream&nbsp;::&nbsp;truncate__](io-Stream-truncate.md) | Truncates a file to `$size` length |
 | [__Stream&nbsp;::&nbsp;getMetadata__](io-Stream-getMetadata.md) | Get the metadata for the underlaying resource |

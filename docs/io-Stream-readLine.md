@@ -21,4 +21,5 @@ readLine(int $maxlen = -1): null|string
 | maxlen | Max bytes to read before stop, regardless of line endings. |
 
 ## Return
-The bytes that was read or `NULL` on EOF.
+The bytes that was read or empty string '' on EOF.
+On error a `NULL` value is returned.

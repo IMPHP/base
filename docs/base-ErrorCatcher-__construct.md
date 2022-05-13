@@ -4,10 +4,10 @@ ____
 
 ## Synopsis
 ```php
-public __construct(bool $throwOnError = TRUE)
+public __construct(int $onError = im\ErrorCatcher::T_HALT)
 ```
 
 ## Parameters
 | Name | Description |
 | :--- | :---------- |
-| throwOnError | If true, the code will stop at the first error or warning being triggered |
+| onError | Set this to `T_HALT` or `T_THROW` depending on what to do on errors |
