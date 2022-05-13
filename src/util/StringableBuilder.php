@@ -22,6 +22,7 @@
 namespace im\util;
 
 use Stringable;
+use im\io\Stream;
 
 /**
  * Defines a simple string builder.
@@ -29,12 +30,25 @@ use Stringable;
 interface StringableBuilder extends Stringable {
 
     /**
+     * Get a stream that will be connected to the dataset of this builder. 
+     */
+    function getStream(): Stream;
+
+    /**
+     * Insert strings to a specific position in the current string.
+     *
+     * @param $texts
+     *      Strings to insert.
+     */
+    function insert(int $offset, string ...$texts): void;
+
+    /**
      * Append strings to the end of the current string.
      *
      * @param $texts
      *      Strings to append.
      */
-    function append(string|Stringable ...$texts): void;
+    function append(string ...$texts): void;
 
     /**
      * Prepend strings to the beginning of the current string.
@@ -42,7 +56,7 @@ interface StringableBuilder extends Stringable {
      * @param $texts
      *      Strings to prepend.
      */
-    function prepend(string|Stringable ...$texts): void;
+    function prepend(string ...$texts): void;
 
     /**
      * Clear this StringBuilder
