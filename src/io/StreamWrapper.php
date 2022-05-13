@@ -61,13 +61,16 @@ class StreamWrapper /* implements \StreamWrapper */ {
     /** @internal */
     protected ?Stream $mStream;
 
+    /** @internal */
+    protected bool $mNoClose;
+
     /**
      * Get a context that can be used when creating a resource from a Stream
      *
      * @internal
      */
-    public static function getContext(Stream $stream) /*resource*/ {
-        return stream_context_create([static::NAME => ["stream" => $stream]]);
+    public static function getContext(Stream $stream, bool $noClose = true) /*resource*/ {
+        return stream_context_create([static::NAME => ["stream" => $stream, "no-close" => $noClose]]);
     }
 
     /**
@@ -76,11 +79,15 @@ class StreamWrapper /* implements \StreamWrapper */ {
      * @param $stream
      *      The stream to convert.
      *
+     * @param $noClose
+     *      Disable `fclose` to avoid PHP auto closing streams
+     *      during function/method scope change.
+     *
      * @return resource
      *      A PHP resource wrapper.
      */
-    public static function getResource(Stream $stream) /*resource*/ {
-        $context = StreamWrapper::getContext($stream);
+    public static function getResource(Stream $stream, bool $noClose = true) /*resource*/ {
+        $context = StreamWrapper::getContext($stream, $noClose);
         $mode = match ( $stream->getFlags() & Stream::F_RW ) {
                     Stream::F_RW => 'r+',
                     Stream::F_READABLE => "r",
@@ -106,6 +113,7 @@ class StreamWrapper /* implements \StreamWrapper */ {
         }
 
         $this->mStream = $context[StreamWrapper::NAME]["stream"];
+        $this->mNoClose = $context[StreamWrapper::NAME]["no-close"] ?? true;
 
         return true;
     }
@@ -115,7 +123,13 @@ class StreamWrapper /* implements \StreamWrapper */ {
      * @php
      */
     public function stream_close(): void {
-        $this->mStream->close();
+        if (!$this->mNoClose) {
+            $this->mStream->close();
+
+        } else {
+            // Just detach rather than close
+            unset($this->mStream);
+        }
     }
 
     /**
@@ -201,7 +215,7 @@ class StreamWrapper /* implements \StreamWrapper */ {
             "uid" => 0,
             "gid" => 0,
             "rdev" => 0,
-            "size" =>   $flags == 0 ? 0 : $this->mStream->getLength(),
+            "size" =>  0,
             "atime" => 0,
             "mtime" => 0,
             "ctime" => 0,
