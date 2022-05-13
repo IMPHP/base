@@ -58,7 +58,7 @@ class FileStream implements Stream {
     /**
      *
      */
-    public function __construct(string $file, string $mode = Stream::DEF_MODE, bool $lazy = false) {
+    public function __construct(string $file = "php://temp", string $mode = Stream::DEF_MODE, bool $lazy = false) {
         $this->mFilePath = $file;
         $this->mFileMode = $mode;
 
