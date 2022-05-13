@@ -129,6 +129,60 @@ class RawStream implements Stream {
      * @inheritDoc
      */
     #[Override("im\io\Stream")]
+    public function allocate(int $length): bool {
+        if (($this->flags & Stream::F_RWS) == Stream::F_RWS
+                && strpos($this->getMode(), "a") === false) { // 'a' mode always writes to the end of the stream. Pointer is ignored.
+
+            $offset = $this->getOffset();
+
+            if ($this->seek(0, SEEK_END)) {
+                $end = $this->getOffset();
+                $range = $end - $offset;
+
+                if ($this->write(str_repeat("\0", $length)) == -1) {
+                    return false;
+                }
+
+                if ($range > 0) {
+                    do {
+                        $buflen = $range > 16384 ? 16384 : $range;
+                        $this->seek( ($offset + $range) - $buflen );
+                        $bytes = "";
+                        $bytelen = 0;
+
+                        while ($buflen > $bytelen && ($buff = $this->read($buflen - $bytelen)) != null) {
+                            $bytes .= $buff;
+                            $bytelen += strlen($buff);
+                        }
+
+                        if ($buff === null) {
+                            return false;
+                        }
+
+                        $this->seek( ($offset + $range + $length) - $buflen );
+                        $count = $this->write($bytes);
+                        $range -= $buflen;
+
+                        if ($bytelen != $count) {
+                            return false;
+                        }
+
+                    } while ($range > 0);
+                }
+
+                $this->seek($offset);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\io\Stream")]
     public function getLength(): int {
         if ($this->flags > 0) {
             $meta = $this->getMetadata();
@@ -264,50 +318,17 @@ class RawStream implements Stream {
     #[Override("im\io\Stream")]
     public function write(string $string, bool $expand = false): int {
         if ($this->flags & Stream::F_WRITABLE) {
-            $resource = $this->resource;
-            $bytes = -1;
-
-            if (!$expand) {
-                $bytes = $this->catcher->run(function() use ($resource, &$string) {
-                    return fwrite($this->resource, $string);
-                });
-
-            } else if ($this->flags & Stream::F_SEEKABLE
-                        && $this->flags & Stream::F_READABLE) {
-
-                $bytes = $this->catcher->run(function() use ($resource, &$string) {
-                    $pos = ftell($this->resource);
-                    $tmpres = fopen('php://temp', 'r+');
-
-                    if (is_resource($tmpres)
-                            && stream_copy_to_stream($this->resource, $tmpres) !== FALSE) {
-
-                        fseek($this->resource, $pos, SEEK_SET);
-                        fseek($tmpres, 0, SEEK_SET);
-
-                        $bytes = fwrite($this->resource, $string);
-
-                        try {
-                            if ($bytes !== false) {
-                                stream_copy_to_stream($tmpres, $this->resource);
-
-                                return $bytes;
-                            }
-
-                        } finally {
-                            fclose($tmpres);
-                        }
-                    }
-
-                    return -1;
-                });
+            if ($expand && !$this->allocate(strlen($string))) {
+                return -1;
             }
 
-            if ($this->catcher->getException() != null) {
-                throw $this->catcher->getException();
+            $resource = $this->resource;
+            $count = $this->catcher->run(function() use ($string, $resource) {
+                return fwrite($this->resource, $string);
+            });
 
-            } else if ($bytes !== false) {
-                return $bytes;
+            if ($count !== false) {
+                return $count;
             }
         }
 

@@ -213,6 +213,14 @@ trait StreamDecorator {
      * @inheritDoc
      */
     #[Override("im\io\Stream")]
+    public function allocate(int $length): bool {
+        return $this->stream->allocate($length);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\io\Stream")]
     public function toString(): string {
         return $this->stream->toString();
     }

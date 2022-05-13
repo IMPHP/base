@@ -261,6 +261,25 @@ interface Stream {
     function readLine(int $maxlen = -1): ?string;
 
     /**
+     * Allocate space at the pointer location.
+     *
+     * This method will allocate `$length` bytes in front of the file pointer.
+     * Any conetent after the pointer location is pushed forward, allocating
+     * the space in between.
+     *
+     * @note
+     *      The pointer is reset to the current position after allocation.
+     *
+     * @note
+     *      This method requires the stream to be `readable`, `writable` and `seekable`.
+     *      It also does not work if the stream was opened with `a` mode.
+     *
+     * @param $length
+     *      Length in bytes to allocate
+     */
+    function allocate(int $length): bool;
+
+    /**
      * Clear the entire stream.
      *
      * @note
