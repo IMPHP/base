@@ -205,15 +205,18 @@ final class ImClassLoader implements ClassLoader {
      *
      * @param $path
      *      Base search path
+     *
+     * @param $namespace
+     *      Restrict search to a specific namespace
      */
-    public function addBasePath(string $path): void {
+    public function addBasePath(string $path, string $namespace = null): void {
         if (is_dir($path)) {
             if (($realpath = realpath($path)) !== FALSE) {
                 $path = $realpath;
             }
 
-            if (!in_array($path, $this->mBasePaths)) {
-                $this->mBasePaths[] = $path;
+            if (!isset($this->mBasePaths[$path])) {
+                $this->mBasePaths[$path] = $namespace == null ? null : trim(str_replace("\\", "/", $namespace), "/");
             }
 
         } else {
@@ -264,8 +267,13 @@ final class ImClassLoader implements ClassLoader {
             /* Start searching each registered class path
              */
             foreach ($localFiles as $localFile) {
-                foreach ($this->mBasePaths as $basePath) {
-                    $file = sprintf("%s/%s", $basePath, $localFile);
+                foreach ($this->mBasePaths as $basePath => $namespace) {
+                    if ($namespace == null || !str_starts_with($localFile, "${namespace}/")) {
+                        $file = sprintf("%s/%s", $basePath, $localFile);
+
+                    } else {
+                        $file = sprintf("%s/%s", $basePath, substr($localFile, strlen($namespace)+1));
+                    }
 
                     if (is_file($file)) {
                         return $file;
