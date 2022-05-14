@@ -286,7 +286,7 @@ class RawStream extends BaseStream {
             });
 
             if ($bytes !== false || $this->isEOF()) { // fgets may return false on both error and eof.
-                return ($bytes === false || empty($bytes)) ? "" : rtrim($bytes, "\r\n");
+                return ($bytes === false || empty($bytes)) ? "" : str_replace(["\r\n", "\n", "\r"], PHP_EOL, $bytes);
             }
         }
 

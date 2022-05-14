@@ -186,7 +186,7 @@ class NullStream extends BaseStream {
             $this->pointer = $maxlen > 0 ? $maxlen : 4096;
 
             // Return random data
-            return random_bytes($this->pointer);
+            return random_bytes($this->pointer) . PHP_EOL;
         }
 
         return null;

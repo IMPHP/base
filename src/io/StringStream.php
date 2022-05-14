@@ -30,7 +30,7 @@ use im\util\Map;
  * This `Stream` writes and reads data from a string.
  * Using `RawStream` with `php://temp` is the best option for temp storage,
  * but there may be situations where you have a string that you wish to read/write
- * in a particular way. This Stream also allows you to add a `string` by reference. 
+ * in a particular way. This Stream also allows you to add a `string` by reference.
  */
 class StringStream extends BaseStream {
 
@@ -241,6 +241,8 @@ class StringStream extends BaseStream {
                 } else {
                     $this->pointer += (strlen($bytes) + 1);
                 }
+
+                $bytes .= PHP_EOL;
 
             } else {
                 $bytes = substr($this->stream, $this->pointer);
