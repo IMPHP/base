@@ -75,8 +75,7 @@ final class ImClassLoader implements ClassLoader {
     public function __construct() {
         /* Also add the base directory as a source
          */
-        $this->addBasePath(__DIR__);
-        $this->addClassPrefix("im\\", "");
+        $this->addBasePath(__DIR__, "im");
     }
 
     /**
