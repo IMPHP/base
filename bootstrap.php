@@ -19,6 +19,16 @@
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-namespace im;
+if (is_file("composer.json")) {
+    $json = json_decode(file_get_contents("composer.json"), true);
 
-eval('namespace im; const IMPHP_BASE = "' . trim(file_get_contents(__DIR__ . "/version")) . '";');
+    if (!empty($json["version"]) && !empty($json["name"])) {
+        eval('namespace im; const ' . str_replace("/", "_", strtoupper(trim($json["name"]))) . ' = "' . trim($json["version"]) . '";');
+
+    } else {
+        throw new Exception("Failed to set bootstrap constants");
+    }
+
+} else {
+    throw new Exception("Failed to set bootstrap constants");
+}

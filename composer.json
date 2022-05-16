@@ -1,5 +1,6 @@
 {
     "name": "imphp/base",
+    "version": "1.5.2",
     "license": "MIT",
     "description": "Basic tools used by IMPHP components",
     "type": "library",
@@ -19,6 +20,6 @@
         "psr-4": {
             "im\\": "src/"
         },
-        "files": ["static.php"]
+        "files": ["bootstrap.php"]
     }
 }
