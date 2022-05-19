@@ -102,8 +102,8 @@ trait ListParser {
 
             for ($i = $i == 0 ? 0 : $i+1, $x=$i-1, $y=$i+1; $line[$i] ?? null !== null; $i++, $x++, $y++) {
                 $ordI = ord($line[$i]);
-                $ordX = ord($line[$x] ?? 0);
-                $ordY = ord($line[$y] ?? 0);
+                $ordX = ord($line[$x] ?? "\0");
+                $ordY = ord($line[$y] ?? "\0");
 
                 if ($ordI < 33 && $ordX != 92) {
                     if ($ordY < 33) {
