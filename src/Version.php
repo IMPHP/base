@@ -99,7 +99,7 @@ use Stringable;
              $orRules = preg_split("/\s+/", $andRule);
 
              foreach ($orRules as $orRule) {
-                 if (preg_match("/^\>=|\<=|\>|\<|=|!=|\^|~/", $orRule, $match)) {
+                 if (preg_match("/^!?(?:\>=|\<=|\>|\<|=|\^|~)/", $orRule, $match)) {
                      $operator = $match[0];
                      $orRule = substr($orRule, strlen($operator));
 
@@ -134,6 +134,10 @@ use Stringable;
              $this->_build = isset($match["b"]) && $match["b"] != "" ? ((int) $match["b"]) : null;
              $this->_release = $match["r"] ?? null;
              $this->_meta = $match["m"] ?? null;
+
+             if ($this->_release != null) {
+                 $this->_release = strtolower($this->_release);
+             }
 
          } else {
              throw new Exception("Invalid version: $version");
@@ -208,13 +212,13 @@ use Stringable;
       * | Operator | Description         |
       * | -------- | ------------------- |
       * | =        | Equal to            |
-      * | !=       | Not equal to        |
       * | >        | Grater than         |
       * | <        | Smaller than        |
       * | >=       | Grater or equal to  |
       * | <=       | Smaller or equal to |
       * | ^        | Caret range         |
       * | ~        | Tilde range         |
+      * | !<op>    | A 'not' addition that can be added in front of any operator to reverse the output |
       *
       * @note
       *     The Caret and Tilde range options are based on Composers operators.
@@ -235,8 +239,15 @@ use Stringable;
          if ($operator == null) {
              return version_compare($this->version, $version->version);
 
-         } else if (!version_compare($this->version, $version->version, ($operator == "^" || $operator == "~") ? ">=" : $operator)) {
-             return false;
+         } else {
+             $reversed = $operator[0] == "!";
+             if ($reversed) {
+                 $operator = substr($operator, 1);
+             }
+
+             if (!version_compare($this->version, $version->version, ($operator == "^" || $operator == "~") ? ">=" : $operator)) {
+                 return $reversed;
+             }
          }
 
          if ($operator == "~" || $operator == "^") {
@@ -271,9 +282,11 @@ use Stringable;
                  }
              }
 
-             return version_compare($this->version, "{$major}.{$minor}.{$patch}", "<");
+             if (!version_compare($this->version, "{$major}.{$minor}.{$patch}", "<")) {
+                 return $reversed;
+             }
          }
 
-         return true;
+         return !$reversed;
      }
  }
