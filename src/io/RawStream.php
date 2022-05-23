@@ -125,7 +125,7 @@ class RawStream extends BaseStream {
         if ($this->flags > 0) {
             $resource = $this->resource;
             $pos = $this->catcher->run(function() use ($resource) {
-                return ftell($this->resource);
+                return ftell($resource);
             });
 
             if ($pos !== false) {
@@ -144,7 +144,7 @@ class RawStream extends BaseStream {
         if ($this->flags > 0) {
             $resource = $this->resource;
             $eof = $this->catcher->run(function() use ($resource) {
-                return feof($this->resource);
+                return feof($resource);
             });
 
             return $eof;
@@ -185,8 +185,8 @@ class RawStream extends BaseStream {
             $resource = $this->resource;
 
             return $this->catcher->run(function() use ($resource, $size) {
-                return ftruncate($this->resource, $size)
-                        && fseek($this->resource, 0, SEEK_END) == 0;
+                return ftruncate($resource, $size)
+                        && fseek($resource, 0, SEEK_END) == 0;
             });
         }
 
@@ -223,7 +223,7 @@ class RawStream extends BaseStream {
         if ($this->flags > 0) {
             $resource = $this->resource;
             $meta = $this->catcher->run(function() use ($resource) {
-                return stream_get_meta_data($this->resource);
+                return stream_get_meta_data($resource);
             });
 
             if (is_array($meta)) {
@@ -246,7 +246,7 @@ class RawStream extends BaseStream {
 
             $resource = $this->resource;
             $count = $this->catcher->run(function() use ($string, $resource) {
-                return fwrite($this->resource, $string);
+                return fwrite($resource, $string);
             });
 
             if ($count !== false) {
