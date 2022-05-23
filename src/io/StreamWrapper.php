@@ -215,7 +215,7 @@ class StreamWrapper /* implements \StreamWrapper */ {
             "uid" => 0,
             "gid" => 0,
             "rdev" => 0,
-            "size" =>  0,
+            "size" =>  $this->mStream->getLength(),
             "atime" => 0,
             "mtime" => 0,
             "ctime" => 0,
