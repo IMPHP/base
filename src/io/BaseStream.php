@@ -155,7 +155,7 @@ abstract class BaseStream implements Stream {
      */
     #[Override("im\io\Stream")]
     public function allocate(int $length): bool {
-        if (($this->flags & Stream::F_RWS) == Stream::F_RWS
+        if ($this->getFlags(Stream::F_RWS) == Stream::F_RWS
                 && strpos($this->getMode(), "a") === false) { // 'a' mode always writes to the end of the stream. Pointer is ignored.
 
             $offset = $this->getOffset();
