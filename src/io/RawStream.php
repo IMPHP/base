@@ -110,6 +110,8 @@ class RawStream extends BaseStream {
             if ($length == -1) {
                 return parent::getLength();
             }
+
+            return $length;
         }
 
         return -1;
