@@ -101,7 +101,7 @@ class RawStream extends BaseStream {
                 $stat = fstat($resource);
 
                 if (is_array($stat)) {
-                    return fstat($resource)["size"] ?? -1;
+                    return $stat["size"] ?? -1;
                 }
 
                 return -1;
