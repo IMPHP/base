@@ -103,13 +103,10 @@ class NullStream extends BaseStream {
     #[Override("im\io\res\Stream")]
     public function seek(int $offset, int $whence = SEEK_SET): bool {
         if ($this->isSeekable()) {
-            $max = PHP_INT_MAX;
+            if ($whence == SEEK_CUR
+                    || $whence == SEEK_END) {
 
-            if ($whence == SEEK_CUR) {
                 $offset += $this->pointer;
-
-            } else if ($whence == SEEK_END) {
-                $offset += PHP_INT_MAX;
             }
 
             if ($offset < 0) {
