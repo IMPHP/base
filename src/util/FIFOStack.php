@@ -77,7 +77,7 @@ class FIFOStack extends Stackable {
         if ($sort != null) {
             $new->clear();
 
-            for ($i=0; $i < $this->length; $i++) {
+            for ($i=0; $i < $this->dataset["length"]; $i++) {
                 $loc = ($this->dataset["offset"] + $i) % $this->dataset["capacity"];
                 $value = $this->dataset["table"][$loc];
 
