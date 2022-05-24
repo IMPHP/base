@@ -52,6 +52,6 @@ class LIFOStack extends Stackable {
      */
     #[Override("im\util\Stackable")]
     public function peak(): mixed {
-        return $this->dataset["table"][$this->dataset["length"]];
+        return $this->dataset["table"][$this->dataset["length"]-1] ?? null;
     }
 }
