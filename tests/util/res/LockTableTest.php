@@ -4,6 +4,11 @@ use PHPUnit\Framework\TestCase;
 use im\util\res\DataTable;
 use im\util\res\LockTable;
 
+/**
+ * @deprecated
+ *
+ * This test points to a deprecated class `im\util\res\LockTable`
+ */
 final class LockTableTest extends TestCase {
 
     protected DataTable $Table;

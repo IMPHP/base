@@ -4,6 +4,11 @@ use PHPUnit\Framework\TestCase;
 use im\util\res\DataTable;
 use im\util\res\HashTable;
 
+/**
+ * @deprecated
+ *
+ * This test points to a deprecated class `im\util\res\HashTable`
+ */
 final class HashTableTest extends TestCase {
 
     protected DataTable $Table;

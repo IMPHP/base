@@ -3,6 +3,11 @@
 use PHPUnit\Framework\TestCase;
 use im\util\res\DataTable;
 
+/**
+ * @deprecated
+ *
+ * This test points to a deprecated class `im\util\res\DataTable`
+ */
 final class DataTableTest extends TestCase {
 
     protected DataTable $Table;

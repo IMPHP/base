@@ -1,224 +1,37 @@
 <?php declare(strict_types=1);
+/*
+ * This file is part of the IMPHP Project: https://github.com/IMPHP
+ *
+ * Copyright (c) 2018 Daniel Bergløv, License: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+ * THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+namespace im\test\util;
 
-use PHPUnit\Framework\TestCase;
-use im\util\IndexArray;
+use im\util\MutableStructuredList;
 use im\util\Vector;
 
-final class VectorTest extends TestCase {
-
-    protected IndexArray $List;
-
-    /**
-     *
-     */
-    public function setUp(): void {
-        $this->List = new Vector();
-    }
-
-
-    /* ---------------------------------------
-     *  ListArray
-     */
+/**
+ *
+ */
+final class VectorTest extends StructuredListBase {
 
     /**
      *
      */
-    public function test_add(): void {
-        $this->List->add("MyValue");
-
-        foreach ($this->List as $value) {
-            $this->assertEquals("MyValue", $value);
-        }
+    public function initArray(): MutableStructuredList {
+        return new Vector();
     }
-
-    /**
-     *
-     */
-    public function test_addIterable(): void {
-        $itt = (function(){
-            yield "MyValue";
-        })();
-
-        $this->List->addIterable($itt);
-
-        foreach ($this->List as $value) {
-            $this->assertEquals("MyValue", $value);
-        }
-    }
-
-    /**
-     *
-     */
-    public function test_contains(): void {
-        $this->List->add("MyValue");
-
-        $this->assertEquals(
-            true,
-            $this->List->contains("MyValue")
-        );
-
-        $this->assertEquals(
-            false,
-            $this->List->contains("MyOtherValue")
-        );
-    }
-
-    /**
-     *
-     */
-    public function test_remove(): void {
-        $this->List->add("MyValue");
-
-        $this->assertEquals(
-            true,
-            $this->List->contains("MyValue")
-        );
-
-        $this->List->remove("MyValue");
-
-        $this->assertEquals(
-            false,
-            $this->List->contains("MyValue")
-        );
-    }
-
-    /**
-     *
-     */
-    public function test_join(): void {
-        $this->List->add("MyValue");
-        $this->List->add("MyOtherValue");
-
-        $this->assertEquals(
-            "MyValue, MyOtherValue",
-            $this->List->join(", ")
-        );
-    }
-
-    /**
-     *
-     */
-    public function test_length(): void {
-        $this->assertEquals(0, $this->List->length());
-
-        $this->List->add("MyValue");
-        $this->assertEquals(1, $this->List->length());
-
-        $this->List->add("MyOtherValue");
-        $this->assertEquals(2, $this->List->length());
-    }
-
-    /**
-     *
-     */
-    public function test_toArray(): void {
-        $this->List->add("MyValue");
-        $this->List->add("MyOtherValue");
-
-        $this->assertEquals(
-            ["MyValue", "MyOtherValue"],
-            $this->List->toArray()
-        );
-    }
-
-    /**
-     *
-     */
-    public function test_copy(): void {
-        $this->List->addIterable(["test1", "test2", "test3", "test4", "test5", "test6"]);
-        $newList = $this->List->copy(function($key, $value){
-            return $value == "test2" || $value == "test5";
-        });
-
-        $this->assertEquals(2, $newList->length());
-        $this->assertEquals("test2", $newList->get(0));
-    }
-
-    /* ---------------------------------------
-     *  IndexArray
-     */
-
-     /**
-      *
-      */
-     public function test_indexOf(): void {
-         $this->assertEquals(
-             -1,
-             $this->List->indexOf("MyValue")
-         );
-
-         $this->List->add("MyValue");
-         $this->assertEquals(
-             0,
-             $this->List->indexOf("MyValue")
-         );
-     }
-
-     /**
-      *
-      */
-     public function test_get(): void {
-         $this->List->add("MyValue");
-         $this->List->set(0, "MyValue2");
-         $this->assertEquals(
-             "MyValue2",
-             $this->List->get(-1)
-         );
-     }
-
-     /**
-      *
-      */
-     public function test_insert(): void {
-         $this->List->insert(-1, "MyValue1");
-         $this->assertEquals(
-             "MyValue1",
-             $this->List->get(0)
-         );
-
-         $this->List->add("MyValue2");
-         $this->List->add("MyValue3");
-         $this->List->add("MyValue4");
-
-         $this->List->insert(2, "MyValue5");
-         $this->assertEquals(
-             "MyValue5",
-             $this->List->get(2)
-         );
-
-         $this->assertEquals(
-             "MyValue3",
-             $this->List->get(3)
-         );
-     }
-
-     /**
-      *
-      */
-     public function test_unset(): void {
-         $this->List->add("MyValue");
-          $this->List->add("MyOtherValue");
-
-         $this->assertEquals(
-             true,
-             $this->List->contains("MyValue")
-         );
-
-         $value = $this->List->unset(0);
-
-         $this->assertEquals(
-             false,
-             $this->List->contains("MyValue")
-         );
-
-         $this->assertEquals(
-             true,
-             $this->List->contains("MyOtherValue")
-         );
-
-         $this->assertEquals(
-             0,
-             $this->List->indexOf("MyOtherValue")
-         );
-     }
 }

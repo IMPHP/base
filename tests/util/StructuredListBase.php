@@ -20,78 +20,89 @@
  */
 namespace im\test\util;
 
-use PHPUnit\Framework\TestCase;
-use im\util\StringBuilder;
+use im\util\ImmutableStructuredList;
+use im\util\MutableStructuredList;
+use im\util\IndexArray;
 
 /**
  *
  */
-final class StringBuilderTest extends TestCase {
+abstract class StructuredListBase extends ListArrayBase {
 
     /**
      *
      */
-    public function test_append(): void {
-        $builder = new StringBuilder();
-        $builder->append("#");
-        $builder->append("Test", "1");
+    abstract function initArray(): MutableStructuredList;
+
+    /**
+     *
+     */
+    public function test_SetUnset(): void {
+        $list = $this->initArray();
+        $list->add("Val1");
+        $list->add("Val2");
+        $list->add("Val3");
+
+        $list->set(1, "Val4");
         $this->assertEquals(
-            "#Test1",
-            strval($builder)
+            "Val1|Val4|Val3",
+            $list->join("|")
         );
 
-        $builder->prepend("#", "Test", "2:");
+        $list->insert(1, "Val5");
         $this->assertEquals(
-            "#Test2:#Test1",
-            strval($builder)
+            "Val1|Val5|Val4|Val3",
+            $list->join("|")
         );
 
-        $builder->appendFormat(":#%s%d", "Test", 3);
+        $list->unset(1);
+        $list->unset(1);
         $this->assertEquals(
-            "#Test2:#Test1:#Test3",
-            strval($builder)
-        );
-
-        $builder->prependFormat("#%s%d:", "Test", 4);
-        $this->assertEquals(
-            "#Test4:#Test2:#Test1:#Test3",
-            strval($builder)
+            "Val1|Val3",
+            $list->join("|")
         );
     }
 
     /**
      *
      */
-    public function test_clear(): void {
-        $builder = new StringBuilder();
-        $builder->append("123456789");
+    public function test_Indexing(): void {
+        $list = $this->initArray();
+        $list->add("Val1");
+        $list->add("Val2");
+        $list->add("Val3");
+
         $this->assertEquals(
-            9,
-            $builder->length()
+            1,
+            $list->indexOf("Val2")
         );
 
-        $builder->clear();
         $this->assertEquals(
-            0,
-            $builder->length()
+            "Val2",
+            $list->get(1)
+        );
+
+        $this->assertEquals(
+            "DefVal",
+            $list->get(10, "DefVal")
         );
     }
 
     /**
      *
      */
-    public function test_toString(): void {
-        $builder = new StringBuilder();
-        $builder->append("123456789");
+    public function test_instance($list = null): void {
+        $list = $this->initArray();
 
-        $this->assertEquals(
-            "123456789",
-            strval($builder)
-        );
+        parent::test_instance($list);
 
-        $this->assertEquals(
-            $builder->toString(),
-            strval($builder)
-        );
+        $this->assertInstanceOf(ImmutableStructuredList::class, $list);
+        $this->assertInstanceOf(MutableStructuredList::class, $list);
+
+        /*
+         * Deprecated:
+         *      For compatibility only
+         */
+        $this->assertInstanceOf(IndexArray::class, $list);
     }
 }

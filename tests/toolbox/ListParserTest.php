@@ -18,20 +18,38 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace im\test\util;
+namespace im\test\toolbox;
 
-use im\util\MutableMappedArray;
-use im\util\Map;
+use PHPUnit\Framework\TestCase;
+use im\toolbox\ListParser;
 
 /**
  *
  */
-final class MapTest extends MappedArrayBase {
+final class ListParserTest extends TestCase {
 
     /**
      *
      */
-    public function initArray(): MutableMappedArray {
-        return new Map();
+    public function test_scanLine(): void {
+        $parser = new class() {
+            use ListParser { scanLine as public; }
+        };
+
+        $line = $parser->scanLine("   Col_1 Col_2  \tCol\\ 3", "col1", "col2", "col3");
+        $this->assertEquals(
+            ["col1" => "Col_1", "col2" => "Col_2", "col3" => "Col 3"],
+            $line
+        );
+
+        $line = $parser->scanLine("#   col1 col2  \tcol\\ 3", "col1", "col2", "col3");
+        $this->assertNull(
+            $line
+        );
+
+        $line = $parser->scanLine("", "col1", "col2", "col3");
+        $this->assertNull(
+            $line
+        );
     }
 }

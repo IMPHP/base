@@ -1,98 +1,37 @@
 <?php declare(strict_types=1);
+/*
+ * This file is part of the IMPHP Project: https://github.com/IMPHP
+ *
+ * Copyright (c) 2018 Daniel Bergløv, License: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+ * THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+namespace im\test\io;
 
-use PHPUnit\Framework\TestCase;
 use im\io\Stream;
 use im\io\RawStream;
 
-final class RawStreamTest extends TestCase {
+/**
+ *
+ */
+final class RawStreamTest extends StreamBase {
 
     /**
      *
      */
-    public function test_isSomethingable(): Stream {
-        $stream = new RawStream();
-
-        $this->assertEquals(
-            true,
-            $stream->isWritable()
-        );
-
-        $this->assertEquals(
-            true,
-            $stream->isReadable()
-        );
-
-        $this->assertEquals(
-            true,
-            $stream->isSeekable()
-        );
-
-        return $stream;
-    }
-
-    /**
-     * @depends test_isSomethingable
-     */
-    public function test_write(Stream $stream): Stream {
-        $stream->write("Test Line 1");
-
-        $this->assertEquals(
-            "Test Line 1",
-            $stream->toString()
-        );
-
-        return $stream;
-    }
-
-    /**
-     * @depends test_seek
-     */
-    public function test_read(Stream $stream): Stream {
-        $stream->seek(0, SEEK_END);
-        $stream->write("\n");
-        $stream->rewind();
-
-        while (($line = $stream->readLine()) != null) {
-            $this->assertEquals(
-                "Test Line 1",
-                $line
-            );
-        }
-
-        return $stream;
-    }
-
-    /**
-     * @depends test_write
-     */
-    public function test_seek(Stream $stream): Stream {
-        $stream->seek(5);
-
-        $this->assertEquals(
-            "Line",
-            $stream->read(4)
-        );
-
-        return $stream;
-    }
-
-    /**
-     * @depends test_read
-     */
-    public function test_expand(Stream $stream): void {
-        $pos = $stream->getOffset();
-
-        $stream->write("Test Line 2\n");
-        $stream->seek($pos);
-
-        $stream->write("Test Line 3\n", true);
-        $stream->rewind();
-
-        foreach ([1,3,2] as $num) {
-            $this->assertEquals(
-                "Test Line $num",
-                $stream->readLine()
-            );
-        }
+    public function initStream(): Stream {
+        return new RawStream();
     }
 }

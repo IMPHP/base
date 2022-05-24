@@ -1,118 +1,40 @@
 <?php declare(strict_types=1);
+/*
+ * This file is part of the IMPHP Project: https://github.com/IMPHP
+ *
+ * Copyright (c) 2018 Daniel Bergløv, License: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+ * THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+namespace im\test\util;
 
-use PHPUnit\Framework\TestCase;
-use im\util\ListArray;
+use im\util\MutableListArray;
 use im\util\Set;
 
-final class SetTest extends TestCase {
-
-    protected ListArray $List;
-
-    /**
-     *
-     */
-    public function setUp(): void {
-        $this->List = new Set();
-    }
+/**
+ * @deprecated
+ *
+ * This test points to a deprecated class `im\util\Set`
+ * which has been deprecated in favor of `im\util\HashSet`
+ */
+final class SetTest extends ListArrayBase {
 
     /**
      *
      */
-    public function test_add(): void {
-        $this->List->add("MyValue");
-
-        foreach ($this->List as $value) {
-            $this->assertEquals("MyValue", $value);
-        }
-    }
-
-    /**
-     *
-     */
-    public function test_addIterable(): void {
-        $itt = (function(){
-            yield "MyValue";
-        })();
-
-        $this->List->addIterable($itt);
-
-        foreach ($this->List as $value) {
-            $this->assertEquals("MyValue", $value);
-        }
-    }
-
-    /**
-     *
-     */
-    public function test_contains(): void {
-        $this->List->add("MyValue");
-
-        $this->assertEquals(
-            true,
-            $this->List->contains("MyValue")
-        );
-
-        $this->assertEquals(
-            false,
-            $this->List->contains("MyOtherValue")
-        );
-    }
-
-    /**
-     *
-     */
-    public function test_remove(): void {
-        $this->List->add("MyValue");
-
-        $this->assertEquals(
-            true,
-            $this->List->contains("MyValue")
-        );
-
-        $this->List->remove("MyValue");
-
-        $this->assertEquals(
-            false,
-            $this->List->contains("MyValue")
-        );
-    }
-
-    /**
-     *
-     */
-    public function test_join(): void {
-        $this->List->add("MyValue");
-        $this->List->add("MyOtherValue");
-
-        $this->assertEquals(
-            "MyValue, MyOtherValue",
-            $this->List->join(", ")
-        );
-    }
-
-    /**
-     *
-     */
-    public function test_length(): void {
-        $this->assertEquals(0, $this->List->length());
-
-        $this->List->add("MyValue");
-        $this->assertEquals(1, $this->List->length());
-
-        $this->List->add("MyOtherValue");
-        $this->assertEquals(2, $this->List->length());
-    }
-
-    /**
-     *
-     */
-    public function test_toArray(): void {
-        $this->List->add("MyValue");
-        $this->List->add("MyOtherValue");
-
-        $this->assertEquals(
-            ["MyValue", "MyOtherValue"], 
-            $this->List->toArray()
-        );
+    public function initArray(): MutableListArray {
+        return new Set();
     }
 }

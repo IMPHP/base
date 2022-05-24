@@ -18,20 +18,20 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace im\test\util;
+namespace im\test\io;
 
-use im\util\MutableMappedArray;
-use im\util\Map;
+use im\io\Stream;
+use im\io\StringStream;
 
 /**
  *
  */
-final class MapTest extends MappedArrayBase {
+final class StringStreamTest extends StreamBase {
 
     /**
      *
      */
-    public function initArray(): MutableMappedArray {
-        return new Map();
+    public function initStream(): Stream {
+        return new StringStream();
     }
 }

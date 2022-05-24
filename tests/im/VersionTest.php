@@ -18,20 +18,50 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
  * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace im\test\util;
+namespace im\test;
 
-use im\util\MutableMappedArray;
-use im\util\Map;
+use PHPUnit\Framework\TestCase;
+use im\Version;
 
 /**
  *
  */
-final class MapTest extends MappedArrayBase {
+final class VersionTest extends TestCase {
 
     /**
      *
      */
-    public function initArray(): MutableMappedArray {
-        return new Map();
+    public function test_version(): void {
+        $this->assertFalse(
+            Version::validate("2.1.4", "!~2.1.0")
+        );
+
+        $this->assertTrue(
+            Version::validate("2.1.4", "!~2.2.0")
+        );
+
+        $this->assertTrue(
+            Version::validate("2.1.4", ">1.0 <2.1.5")
+        );
+
+        $this->assertTrue(
+            Version::validate("2.1.4", ">3.0 || ~2.0")
+        );
+
+        $this->assertTrue(
+            Version::validate("2.1.4", "2.1.4")
+        );
+
+        $this->assertFalse(
+            Version::validate("2.1.4", "!>=2.1.4")
+        );
+
+        $this->assertTrue(
+            Version::validate("2.1.4", ">2.1.4-beta")
+        );
+
+        $this->assertFalse(
+            Version::validate("2.1.4-beta.1", ">2.1.4-beta.2")
+        );
     }
 }
