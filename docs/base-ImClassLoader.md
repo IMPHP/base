@@ -20,7 +20,7 @@ final class ImClassLoader implements im\ClassLoader {
     public addClassPrefix(string $prefix, string $localDir): void
     public addClassMap(null|string $basePath, array $map): void
     public loadClassMap(string $file): void
-    public addBasePath(string $path): void
+    public addBasePath(string $path, null|string $namespace = NULL): void
     public findClass(string $class): null|string
     public enableAutoload(): bool
     public disableAutoload(): bool

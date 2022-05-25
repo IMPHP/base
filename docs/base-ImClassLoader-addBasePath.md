@@ -14,13 +14,14 @@ in the root of the base paths.
 
 ## Synopsis
 ```php
-public addBasePath(string $path): void
+public addBasePath(string $path, null|string $namespace = NULL): void
 ```
 
 ## Parameters
 | Name | Description |
 | :--- | :---------- |
 | path | Base search path |
+| namespace | Restrict search to a specific namespace |
 
 ## Example 1
 ```php

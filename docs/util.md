@@ -26,7 +26,7 @@ Utility package that is bundled with IMPHP Base.
 ## Traits
 | Name | Description |
 | :--- | :---------- |
-| [PropertyAccess](util-PropertyAccess.md) | Small trait to access get/set methods via property access |
+| [~PropertyAccess~](util-PropertyAccess.md) | Small trait to access get/set methods via property access |
 
 ## Classes
 | Name | Description |
