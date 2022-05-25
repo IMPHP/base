@@ -21,6 +21,7 @@
 namespace im;
 
 use Exception;
+use RuntimeException;
 use Stringable;
 
 /**
