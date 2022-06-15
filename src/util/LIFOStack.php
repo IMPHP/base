@@ -21,6 +21,8 @@
 
 namespace im\util;
 
+use Throwable;
+
 /**
  * A LIFO Stack implementation
  */
@@ -31,8 +33,7 @@ class LIFOStack extends Stackable {
      */
     #[Override("im\util\Stackable")]
     public function push(mixed $value): void {
-        $this->dataset["length"]++;
-        array_push($this->dataset["table"], $value);
+        $this->dataset->push($value);
     }
 
     /**
@@ -40,11 +41,12 @@ class LIFOStack extends Stackable {
      */
     #[Override("im\util\Stackable")]
     public function pop(): mixed {
-        if ($this->dataset["length"] > 0) {
-            $this->dataset["length"]--;
-        }
+        try {
+            return $this->dataset->pop();
 
-        return array_pop($this->dataset["table"]);
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     /**
@@ -52,6 +54,11 @@ class LIFOStack extends Stackable {
      */
     #[Override("im\util\Stackable")]
     public function peak(): mixed {
-        return $this->dataset["table"][$this->dataset["length"]-1] ?? null;
+        try {
+            return $this->dataset->top();
+
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 }

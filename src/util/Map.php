@@ -21,32 +21,72 @@
 
 namespace im\util;
 
+use Traversable;
+
 /**
  * An unmodifiable map implementation
  */
 class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
+
+    /** @ignore */
+    protected array $dataset = [];
+
+    /** @ignore */
+    protected int $length = 0;
 
     /**
      * @param $map
      *      A backed map instance
      */
     public function __construct(iterable $map = null) {
-        parent::__construct();
-
         if ($map != null) {
             $this->addIterable($map);
         }
     }
 
     /**
+     * @internal
+     * @php
+     */
+    #[Override("im\util\Collection")]
+    public function __unserialize(array $data): void {
+        $this->addIterable($data);
+    }
+
+    /**
      * @inheritDoc
      */
-    #[Override("im\utils\MappedArray")]
+    #[Override("im\utils\Collection")]
+    public function clear(): void {
+        $this->dataset = [];
+        $this->length = 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\Collection")]
+    public function toArray(): array {
+        return $this->dataset;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function length(): int {
+        return $this->length;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\ImmutableMappedArray")]
     public function addIterable(iterable $map): void {
         foreach ($map as $key => $value) {
             if (is_string($key)) {
-                $this->dataset["table"][$key] = $value;
-                $this->dataset["length"]++;
+                $this->dataset[$key] = $value;
+                $this->length++;
             }
         }
     }
@@ -54,16 +94,16 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\MappedArray")]
+    #[Override("im\utils\ImmutableMappedArray")]
     public function remove(mixed $value): int {
         $i = 0;
 
-        while (($key = array_search($value, $this->dataset["table"], true)) !== false) {
-            unset($this->dataset["table"][$key]);
+        while (($key = array_search($value, $this->dataset, true)) !== false) {
+            unset($this->dataset[$key]);
             $i++;
         }
 
-        $this->dataset["length"] -= $i;
+        $this->length -= $i;
 
         return $i;
     }
@@ -71,17 +111,17 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\StringMappedArray")]
+    #[Override("im\utils\MutableStringMappedArray")]
     public function set(string $key, mixed $value): mixed {
-        if (isset($this->dataset["table"][$key])) {
-            $cur = $this->dataset["table"][$key];
+        if (isset($this->dataset[$key])) {
+            $cur = $this->dataset[$key];
 
         } else {
-            $this->dataset["length"]++;
+            $this->length++;
             $cur = null;
         }
 
-        $this->dataset["table"][$key] = $value;
+        $this->dataset[$key] = $value;
 
         return $cur;
     }
@@ -89,13 +129,13 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\StringMappedArray")]
+    #[Override("im\utils\MutableStringMappedArray")]
     public function unset(string $key): mixed {
-        if (isset($this->dataset["table"][$key])) {
-            $cur = $this->dataset["table"][$key];
-            $this->dataset["length"]--;
+        if (isset($this->dataset[$key])) {
+            $cur = $this->dataset[$key];
+            $this->length--;
 
-            unset($this->dataset["table"][$key]);
+            unset($this->dataset[$key]);
 
             return $cur;
         }
@@ -106,9 +146,21 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
     /**
      * @inheritDoc
      */
+    #[Override("im\util\ImmutableMappedArray")]
+    public function filter(callable $filter): static {
+        $new = clone $this;
+        $new->dataset = array_filter($this->dataset, function($v, $k) use ($filter) { return $filter($k, $v); }, ARRAY_FILTER_USE_BOTH);
+        $new->length = count($new->dataset);
+
+        return $new;
+    }
+
+    /**
+     * @inheritDoc
+     */
     #[Override("im\utils\ImmutableMappedArray")]
     public function contains(mixed $value): bool {
-        return in_array($value, $this->dataset["table"], true);
+        return in_array($value, $this->dataset, true);
     }
 
     /**
@@ -117,7 +169,7 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
     #[Override("im\utils\ImmutableMappedArray")]
     public function getValues(): ListArray {
         $list = new Vector();
-        $list->addIterable(array_values($this->dataset["table"]));
+        $list->addIterable(array_values($this->dataset));
 
         return $list;
     }
@@ -128,7 +180,7 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
     #[Override("im\utils\ImmutableMappedArray")]
     public function getKeys(): ListArray {
         $list = new Vector();
-        $list->addIterable(array_keys($this->dataset["table"]));
+        $list->addIterable(array_keys($this->dataset));
 
         return $list;
     }
@@ -138,7 +190,7 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
      */
     #[Override("im\utils\ImmutableStringMappedArray")]
     public function get(string $key, mixed $defVal = null): mixed {
-        return $this->dataset["table"][$key] ?? $defVal;
+        return $this->dataset[$key] ?? $defVal;
     }
 
     /**
@@ -146,7 +198,7 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
      */
     #[Override("im\utils\ImmutableStringMappedArray")]
     public function isset(string $key): bool {
-        return isset($this->dataset["table"][$key]);
+        return isset($this->dataset[$key]);
     }
 
     /**
@@ -154,7 +206,7 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
      */
     #[Override("im\utils\ImmutableStringMappedArray")]
     public function find(mixed $value): ?string {
-        return ($key = array_search($value, $this->dataset["table"], true)) !== false ? $key : null;
+        return ($key = array_search($value, $this->dataset, true)) !== false ? $key : null;
     }
 
     /**
@@ -167,5 +219,38 @@ class Map extends BaseCollection implements MapArray, MutableStringMappedArray {
         }
 
         return $this->toArray() == $other->toArray();
+    }
+
+    /**
+     * @internal
+     */
+    #[Override("im\utils\Collection")]
+    public function getIterator(): Traversable {
+        foreach ($this->dataset as $key => $value) {
+            yield $key => $value;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function copy(callable $sort = null): static {
+        $new = clone $this;
+
+        if ($sort != null) {
+            $new->clear();
+
+            foreach ($this->dataset as $key => $value) {
+                if ( ! $sort($key, $value) ) {
+                    continue;
+                }
+
+                $new->dataset[$key] = $value;
+                $new->length++;
+            }
+        }
+
+        return $new;
     }
 }

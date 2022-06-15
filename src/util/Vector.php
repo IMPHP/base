@@ -21,17 +21,23 @@
 
 namespace im\util;
 
+use Traversable;
+
 /**
  * Defines an unmodifiable unstructured list
  */
 class Vector extends BaseCollection implements IndexArray {
 
+    /** @ignore */
+    protected array $dataset = [];
+
+    /** @ignore */
+    protected int $length = 0;
+
     /**
      * @ignore
      */
     public function __construct(iterable $list = null) {
-        parent::__construct();
-
         if ($list != null) {
             $this->addIterable($list);
         }
@@ -40,9 +46,21 @@ class Vector extends BaseCollection implements IndexArray {
     /**
      * @inheritDoc
      */
+    #[Override("im\util\ImmutableListArray")]
+    public function filter(callable $filter): static {
+        $new = clone $this;
+        $new->dataset = array_values(array_filter($this->dataset, $filter));
+        $new->length = count($new->dataset);
+
+        return $new;
+    }
+
+    /**
+     * @inheritDoc
+     */
     #[Override("im\utils\ImmutableListArray")]
     public function join(string $delimiter = null): string {
-        return implode($delimiter ?? ",", $this->dataset["table"]);
+        return implode($delimiter ?? ",", $this->dataset);
     }
 
     /**
@@ -50,7 +68,7 @@ class Vector extends BaseCollection implements IndexArray {
      */
     #[Override("im\utils\ImmutableListArray")]
     public function contains(mixed $value): bool {
-        return in_array($value, $this->dataset["table"], true);
+        return in_array($value, $this->dataset, true);
     }
 
     /**
@@ -58,7 +76,7 @@ class Vector extends BaseCollection implements IndexArray {
      */
     #[Override("im\utils\ImmutableStructuredList")]
     public function indexOf(mixed $value): int {
-        return ($pos = array_search($value, $this->dataset["table"], true)) !== false ? $pos : -1;
+        return ($pos = array_search($value, $this->dataset, true)) !== false ? $pos : -1;
     }
 
     /**
@@ -66,30 +84,47 @@ class Vector extends BaseCollection implements IndexArray {
      */
     #[Override("im\utils\ImmutableStructuredList")]
     public function get(int $key, mixed $defVal = null): mixed {
-        return $this->dataset["table"][$this->resolveKey($key)] ?? $defVal;
+        if ($key < 0) {
+            $key = $this->length + $key;
+
+            if ($key < 0) {
+                $key = 0;
+            }
+        }
+
+        return $this->dataset[$key] ?? $defVal;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\ListArray")]
+    #[Override("im\utils\MutableListArray")]
     public function add(mixed $value): void {
-        $this->dataset["table"][ $this->dataset["length"]++ ] = $value;
+        $this->dataset[ $this->length++ ] = $value;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\ListArray")]
+    #[Override("im\utils\MutableListArray")]
+    public function clear(): void {
+        $this->dataset = [];
+        $this->length = 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\MutableListArray")]
     public function remove(mixed $value): int {
         $i = 0;
 
-        while (($pos = array_search($value, $this->dataset["table"], true)) !== false) {
-            array_splice($this->dataset["table"], $pos, 1);
+        while (($pos = array_search($value, $this->dataset, true)) !== false) {
+            array_splice($this->dataset, $pos, 1);
             $i++;
         }
 
-        $this->dataset["length"] -= $i;
+        $this->length -= $i;
 
         return $i;
     }
@@ -97,23 +132,29 @@ class Vector extends BaseCollection implements IndexArray {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\ListArray")]
+    #[Override("im\utils\MutableListArray")]
     public function addIterable(iterable $list): void {
         foreach ($list as $value) {
-            $this->dataset["table"][ $this->dataset["length"]++ ] = $value;
+            $this->dataset[ $this->length++ ] = $value;
         }
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\StructuredList")]
+    #[Override("im\utils\MutableStructuredList")]
     public function set(int $key, mixed $value): mixed {
-        $key = $this->resolveKey($key);
+        if ($key < 0) {
+            $key = $this->length + $key;
 
-        if ($key < $this->dataset["length"]) {
-            $cur = $this->dataset["table"][$key];
-            $this->dataset["table"][$key] = $value;
+            if ($key < 0) {
+                $key = 0;
+            }
+        }
+
+        if ($key < $this->length) {
+            $cur = $this->dataset[$key];
+            $this->dataset[$key] = $value;
 
             return $cur;
         }
@@ -124,13 +165,19 @@ class Vector extends BaseCollection implements IndexArray {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\StructuredList")]
+    #[Override("im\utils\MutableStructuredList")]
     public function unset(int $key): mixed {
-        $key = $this->resolveKey($key);
+        if ($key < 0) {
+            $key = $this->length + $key;
 
-        if ($key < $this->dataset["length"]) {
-            $removed = array_splice($this->dataset["table"], $key, 1);
-            $this->dataset["length"]--;
+            if ($key < 0) {
+                $key = 0;
+            }
+        }
+
+        if ($key < $this->length) {
+            $removed = array_splice($this->dataset, $key, 1);
+            $this->length--;
 
             return $removed[0];
         }
@@ -141,18 +188,32 @@ class Vector extends BaseCollection implements IndexArray {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\StructuredList")]
+    #[Override("im\utils\MutableStructuredList")]
     public function insert(int $key, mixed $value): bool {
-        $key = $this->resolveKey($key);
+        if ($key < 0) {
+            $key = $this->length + $key;
 
-        if ($key <= $this->dataset["length"]) {
-            array_splice($this->dataset["table"], $key, 0, [$value]);
-            $this->dataset["length"]++;
+            if ($key < 0) {
+                $key = 0;
+            }
+        }
+
+        if ($key <= $this->length) {
+            array_splice($this->dataset, $key, 0, [$value]);
+            $this->length++;
 
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\MutableStructuredList")]
+    public function sort(callable $filter): void {
+        usort($this->dataset, $filter);
     }
 
     /**
@@ -168,17 +229,53 @@ class Vector extends BaseCollection implements IndexArray {
     }
 
     /**
-     * @internal
+     * @inheritDoc
      */
-    protected function resolveKey(int $key): int {
-        if ($key < 0) {
-            $key = $this->dataset["length"] + $key;
+    #[Override("im\util\Collection")]
+    function toArray(): array {
+        return $this->dataset;
+    }
 
-            if ($key < 0) {
-                $key = 0;
-            }
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function length(): int {
+        return $this->length;
+    }
+
+    /**
+     * @internal
+     * @php
+     */
+    #[Override("im\util\Collection")]
+    public function getIterator(): Traversable {
+        foreach ($this->dataset as $key => $value) {
+            yield $key => $value;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function copy(callable $sort = null): static {
+        $new = clone $this;
+
+        if ($sort != null) {
+            $new->dataset = array_values(array_filter($this->dataset, function($v, $k) use ($sort) { return $sort($k, $v); }, ARRAY_FILTER_USE_BOTH));
+            $new->length = count($new->dataset);
         }
 
-        return $key;
+        return $new;
+    }
+
+    /**
+     * @internal
+     * @php
+     */
+    #[Override("im\util\Collection")]
+    public function __unserialize(array $data): void {
+        $this->dataset = array_values($data);
     }
 }

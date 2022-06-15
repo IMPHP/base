@@ -122,6 +122,17 @@ abstract class MappedArrayBase extends TestCase {
             ["key1" => "Val1", "key3" => "Val3"],
             $map2->toArray()
         );
+
+        $map2->set("key4", "Val4");
+
+        $map3 = $map2->filter(function(mixed $key, mixed $value) {
+            return $key != "key3";
+        });
+
+        $this->assertEquals(
+            ["key1" => "Val1", "key4" => "Val4"],
+            $map3->toArray()
+        );
     }
 
     /**

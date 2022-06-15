@@ -31,12 +31,16 @@ class HashSet extends BaseCollection implements ListArray {
     /** @internal */
     protected string $hashAlgo;
 
+    /** @ignore */
+    protected array $dataset = [];
+
+    /** @ignore */
+    protected int $length = 0;
+
     /**
      * @ignore
      */
     public function __construct(iterable $list = null) {
-        parent::__construct();
-
         if (in_array("xxh128", hash_algos())) {
             $this->hashAlgo = "xxh128"; // 2.5 times faster than md5
 
@@ -50,11 +54,40 @@ class HashSet extends BaseCollection implements ListArray {
     }
 
     /**
+     * @internal
+     * @php
+     */
+    #[Override("im\util\Collection")]
+    public function __unserialize(array $data): void {
+        $this->addIterable($data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\ImmutableListArray")]
+    public function filter(callable $filter): static {
+        $new = clone $this;
+        $new->dataset = array_values(array_filter($this->dataset, $filter));
+        $new->length = count($new->dataset);
+
+        return $new;
+    }
+
+    /**
      * @inheritDoc
      */
     #[Override("im\utils\Collection")]
     public function toArray(): array {
-        return array_values($this->dataset["table"]);
+        return array_values($this->dataset);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function length(): int {
+        return $this->length;
     }
 
     /**
@@ -62,7 +95,7 @@ class HashSet extends BaseCollection implements ListArray {
      */
     #[Override("im\utils\Collection")]
     public function traverse(callable $func): bool {
-        foreach ($this->dataset["table"] as $value) {
+        foreach ($this->dataset as $value) {
             $result = $func(null, $value);
 
             if (is_bool($result) && !$result) {
@@ -83,13 +116,13 @@ class HashSet extends BaseCollection implements ListArray {
         if ($sort != null) {
             $new->clear();
 
-            foreach ($this->dataset["table"] as $key => $value) {
+            foreach ($this->dataset as $key => $value) {
                 if ( ! $sort(null, $value) ) {
                     continue;
                 }
 
-                $new->dataset["table"][$key] = $value;
-                $new->dataset["length"]++;
+                $new->dataset[$key] = $value;
+                $new->length++;
             }
         }
 
@@ -101,7 +134,7 @@ class HashSet extends BaseCollection implements ListArray {
      */
     #[Override("im\utils\Collection")]
     public function getIterator(): Traversable {
-        foreach ($this->dataset["table"] as $value) {
+        foreach ($this->dataset as $value) {
             yield $value;
         }
     }
@@ -111,7 +144,7 @@ class HashSet extends BaseCollection implements ListArray {
      */
     #[Override("im\utils\ImmutableListArray")]
     public function join(string $delimiter = null): string {
-        return implode($delimiter ?? ",", $this->dataset["table"]);
+        return implode($delimiter ?? ",", $this->dataset);
     }
 
     /**
@@ -119,33 +152,42 @@ class HashSet extends BaseCollection implements ListArray {
      */
     #[Override("im\utils\ImmutableListArray")]
     public function contains(mixed $value): bool {
-        return isset($this->dataset["table"][$this->resolveKey($value)]);
+        return isset($this->dataset[$this->resolveKey($value)]);
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\ListArray")]
+    #[Override("im\utils\MutableListArray")]
+    public function clear(): void {
+        $this->dataset = [];
+        $this->length = 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\utils\MutableListArray")]
     public function add(mixed $value): void {
         $hashkey = $this->resolveKey($value);
 
-        if (!isset($this->dataset["table"][$hashkey])) {
-            $this->dataset["length"]++;
+        if (!isset($this->dataset[$hashkey])) {
+            $this->length++;
         }
 
-        $this->dataset["table"][$hashkey] = $value;
+        $this->dataset[$hashkey] = $value;
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\ListArray")]
+    #[Override("im\utils\MutableListArray")]
     public function remove(mixed $value): int {
         $hashkey = $this->resolveKey($value);
 
-        if (isset($this->dataset["table"][$hashkey])) {
-            unset($this->dataset["table"][$hashkey]);
-            $this->dataset["length"]--;
+        if (isset($this->dataset[$hashkey])) {
+            unset($this->dataset[$hashkey]);
+            $this->length--;
 
             return 1;
         }
@@ -156,16 +198,16 @@ class HashSet extends BaseCollection implements ListArray {
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\ListArray")]
+    #[Override("im\utils\MutableListArray")]
     public function addIterable(iterable $list): void {
         foreach ($list as $value) {
             $hashkey = $this->resolveKey($value);
 
-            if (!isset($this->dataset["table"][$hashkey])) {
-                $this->dataset["length"]++;
+            if (!isset($this->dataset[$hashkey])) {
+                $this->length++;
             }
 
-            $this->dataset["table"][$hashkey] = $value;
+            $this->dataset[$hashkey] = $value;
         }
     }
 

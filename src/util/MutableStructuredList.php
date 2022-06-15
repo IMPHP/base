@@ -75,4 +75,15 @@ interface MutableStructuredList extends MutableListArray, ImmutableStructuredLis
      *      Returns `TRUE` on success or `FALSE` if `$key` was out of range
      */
     function insert(int $key, mixed $value): bool;
+
+    /**
+     * Sort the collection by value
+     *
+     * @param $filter
+     *      A `callable(mixed $value_a, mixed $value_b): int`.
+     *
+     *      The comparison function must return an integer less than, equal to, or greater than zero
+     *      if the first argument is considered to be respectively less than, equal to, or greater than the second.
+     */
+    function sort(callable $filter): void;
 }

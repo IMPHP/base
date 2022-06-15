@@ -21,21 +21,10 @@
 
 namespace im\util;
 
-use Traversable;
-
 /**
  * An abstract implementation of the `Collection` interface.
  */
 abstract class BaseCollection implements Collection {
-
-    /**
-     * Internal property containing the dataset for the collection.
-     * This array is structured as `["length" => 0, "table" => []]`.
-     */
-    protected array $dataset = [
-        "length" => 0,
-        "table" => []
-    ];
 
     /**
      * Combine two arrays recursively
@@ -74,31 +63,33 @@ abstract class BaseCollection implements Collection {
     }
 
     /**
-     *
-     */
-    public function __construct() {
-
-    }
-
-    /**
      * @php
      */
+    #[Override("im\util\Collection")]
     public function __serialize(): array {
-        return $this->dataset;
-    }
-
-    /**
-     * @php
-     */
-    public function __unserialize(array $data): void {
-        $this->dataset = $data;
-    }
-
-    /**
-     * @php
-     */
-    public function __debugInfo() {
         return $this->toArray();
+    }
+
+    /**
+     * @php
+     */
+    #[Override("im\util\Collection")]
+    public function __debugInfo(): array {
+        return $this->toArray();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function toArray(): array {
+        $ret = [];
+
+        foreach ($this as $key => $value) {
+            $ret[$key] = $value;
+        }
+
+        return $ret;
     }
 
     /**
@@ -117,7 +108,7 @@ abstract class BaseCollection implements Collection {
      */
     #[Override("im\util\Collection")]
     public function traverse(callable $func): bool {
-        foreach ($this->dataset["table"] as $key => $value) {
+        foreach ($this as $key => $value) {
             $result = $func($key, $value);
 
             if (is_bool($result) && !$result) {
@@ -132,66 +123,7 @@ abstract class BaseCollection implements Collection {
      * @inheritDoc
      */
     #[Override("im\util\Collection")]
-    function clear(): void {
-        $this->dataset = [
-            "length" => 0,
-            "table" => []
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Collection")]
-    function length(): int {
-        return $this->dataset["length"];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Collection")]
-    function toArray(): array {
-        return $this->dataset["table"];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Collection")]
-    function copy(callable $sort = null): static {
-        $new = clone $this;
-
-        if ($sort != null) {
-            $new->clear();
-
-            foreach ($this->dataset["table"] as $key => $value) {
-                if ( ! $sort($key, $value) ) {
-                    continue;
-                }
-
-                if (is_int($key)) {
-                    $new->dataset["table"][] = $value;
-
-                } else {
-                    $new->dataset["table"][$key] = $value;
-                }
-
-                $new->dataset["length"]++;
-            }
-        }
-
-        return $new;
-    }
-
-    /**
-     * @internal
-     * @php
-     */
-    #[Override("im\util\Collection")]
-    public function getIterator(): Traversable {
-        foreach ($this->dataset["table"] as $key => $value) {
-            yield $key => $value;
-        }
+    public function clone(): static {
+        return clone $this;
     }
 }

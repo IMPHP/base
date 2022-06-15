@@ -32,13 +32,20 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
     /** @internal */
     protected string $hashAlgo;
 
+    /** @ignore */
+    protected array $dataset = [];
+
+    /** @ignore */
+    protected array $plainkeys = [];
+
+    /** @ignore */
+    protected int $length = 0;
+
     /**
      * @param $map
      *      A backed map instance
      */
     public function __construct(iterable $map = null) {
-        parent::__construct();
-
         if (in_array("xxh128", hash_algos())) {
             $this->hashAlgo = "xxh128"; // 2.5 times faster than md5
 
@@ -46,11 +53,31 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
             $this->hashAlgo = "md5";
         }
 
-        $this->dataset["keys"] = [];
-
         if ($map != null) {
             $this->addIterable($map);
         }
+    }
+
+    /**
+     * @internal
+     * @php
+     */
+    #[Override("im\util\Collection")]
+    public function __unserialize(array $data): void {
+        while (($key = $data["keys"]) !== null && ($value = array_pop($data["values"])) !== null) {
+            $this->set($key, $value);
+        }
+    }
+
+    /**
+     * @php
+     */
+    #[Override("im\util\Collection")]
+    public function __serialize(): array {
+        return [
+            "keys" => array_values($this->plainkeys),
+            "values" => array_values($this->dataset)
+        ];
     }
 
     /**
@@ -58,8 +85,9 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
      */
     #[Override("im\utils\Collection")]
     public function clear(): void {
-        parent::clear();
-        $this->dataset["keys"] = [];
+        $this->dataset = [];
+        $this->plainkeys = [];
+        $this->length = 0;
     }
 
     /**
@@ -68,6 +96,14 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
     #[Override("im\utils\Collection")]
     public function toArray(): array {
         throw new Exception("HashMap cannot be converted to PHP Arrays");
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function length(): int {
+        return $this->length;
     }
 
     /**
@@ -88,8 +124,8 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
      */
     #[Override("im\utils\Collection")]
     public function traverse(callable $func): bool {
-        foreach ($this->dataset["table"] as $hashkey => $value) {
-            $result = $func($this->dataset["keys"][$hashkey], $value);
+        foreach ($this->dataset as $hashkey => $value) {
+            $result = $func($this->plainkeys[$hashkey], $value);
 
             if (is_bool($result) && !$result) {
                 return false;
@@ -109,16 +145,16 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
         if ($sort != null) {
             $new->clear();
 
-            foreach ($this->dataset["table"] as $hashkey => $value) {
-                $key = $this->dataset["keys"][$hashkey];
+            foreach ($this->dataset as $hashkey => $value) {
+                $key = $this->plainkeys[$hashkey];
 
                 if ( ! $sort($key, $value) ) {
                     continue;
                 }
 
-                $new->dataset["table"][$hashkey] = $value;
-                $new->dataset["keys"][$hashkey] = $key;
-                $new->dataset["length"]++;
+                $new->dataset[$hashkey] = $value;
+                $new->plainkeys[$hashkey] = $key;
+                $new->length++;
             }
         }
 
@@ -130,43 +166,43 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
      */
     #[Override("im\utils\Collection")]
     public function getIterator(): Traversable {
-        foreach ($this->dataset["table"] as $hashkey => $value) {
-            yield $this->dataset["keys"][$hashkey] => $value;
+        foreach ($this->dataset as $hashkey => $value) {
+            yield ($this->plainkeys[$hashkey]) => $value;
         }
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\MappedArray")]
+    #[Override("im\utils\MutableMappedArray")]
     public function addIterable(iterable $map): void {
         foreach ($map as $key => $value) {
             $hashkey = $this->resolveKey($key);
 
-            if (!isset($this->dataset["table"][$hashkey])) {
-                $this->dataset["length"]++;
+            if (!isset($this->dataset[$hashkey])) {
+                $this->length++;
             }
 
-            $this->dataset["table"][$hashkey] = $value;
-            $this->dataset["keys"][$hashkey] = $key;
+            $this->dataset[$hashkey] = $value;
+            $this->plainkeys[$hashkey] = $key;
         }
     }
 
     /**
      * @inheritDoc
      */
-    #[Override("im\utils\MappedArray")]
+    #[Override("im\utils\MutableMappedArray")]
     public function remove(mixed $value): int {
         $i = 0;
 
-        while (($hashkey = array_search($value, $this->dataset["table"], true)) !== false) {
-            unset($this->dataset["table"][$hashkey]);
-            unset($this->dataset["keys"][$hashkey]);
+        while (($hashkey = array_search($value, $this->dataset, true)) !== false) {
+            unset($this->dataset[$hashkey]);
+            unset($this->plainkeys[$hashkey]);
 
             $i++;
         }
 
-        $this->dataset["length"] -= $i;
+        $this->length -= $i;
 
         return $i;
     }
@@ -178,16 +214,16 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
     public function set(mixed $key, mixed $value): mixed {
         $hashkey = $this->resolveKey($key);
 
-        if (isset($this->dataset["table"][$hashkey])) {
-            $cur = $this->dataset["table"][$hashkey];
+        if (isset($this->dataset[$hashkey])) {
+            $cur = $this->dataset[$hashkey];
 
         } else {
-            $this->dataset["length"]++;
+            $this->length++;
             $cur = null;
         }
 
-        $this->dataset["table"][$hashkey] = $value;
-        $this->dataset["keys"][$hashkey] = $key;
+        $this->dataset[$hashkey] = $value;
+        $this->plainkeys[$hashkey] = $key;
 
         return $cur;
     }
@@ -199,12 +235,12 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
     public function unset(mixed $key): mixed {
         $hashkey = $this->resolveKey($key);
 
-        if (isset($this->dataset["table"][$hashkey])) {
-            $cur = $this->dataset["table"][$hashkey];
-            $this->dataset["length"]--;
+        if (isset($this->dataset[$hashkey])) {
+            $cur = $this->dataset[$hashkey];
+            $this->length--;
 
-            unset($this->dataset["table"][$hashkey]);
-            unset($this->dataset["keys"][$hashkey]);
+            unset($this->dataset[$hashkey]);
+            unset($this->plainkeys[$hashkey]);
 
             return $cur;
         }
@@ -215,9 +251,32 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
     /**
      * @inheritDoc
      */
+    #[Override("im\util\ImmutableMappedArray")]
+    public function filter(callable $filter): static {
+        $new = clone $this;
+        $new->clear();
+
+        foreach ($this->dataset as $hashkey => $value) {
+            $key = $this->plainkeys[$hashkey];
+
+            if ( ! $sort($key, $value) ) {
+                continue;
+            }
+
+            $new->dataset[$hashkey] = $value;
+            $new->plainkeys[$hashkey] = $key;
+            $new->length++;
+        }
+
+        return $new;
+    }
+
+    /**
+     * @inheritDoc
+     */
     #[Override("im\utils\ImmutableMappedArray")]
     public function contains(mixed $value): bool {
-        return in_array($value, $this->dataset["table"], true);
+        return in_array($value, $this->dataset, true);
     }
 
     /**
@@ -226,7 +285,7 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
     #[Override("im\utils\ImmutableMappedArray")]
     public function getValues(): ListArray {
         $list = new Vector();
-        $list->addIterable(array_values($this->dataset["table"]));
+        $list->addIterable(array_values($this->dataset));
 
         return $list;
     }
@@ -237,7 +296,7 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
     #[Override("im\utils\ImmutableMappedArray")]
     public function getKeys(): ListArray {
         $list = new Vector();
-        $list->addIterable(array_values($this->dataset["keys"]));
+        $list->addIterable(array_values($this->plainkeys));
 
         return $list;
     }
@@ -247,7 +306,7 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
      */
     #[Override("im\utils\ImmutableObjectMappedArray")]
     public function get(mixed $key, mixed $defVal = null): mixed {
-        return $this->dataset["table"][$this->resolveKey($key)] ?? $defVal;
+        return $this->dataset[$this->resolveKey($key)] ?? $defVal;
     }
 
     /**
@@ -255,7 +314,7 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
      */
     #[Override("im\utils\ImmutableObjectMappedArray")]
     public function isset(mixed $key): bool {
-        return isset($this->dataset["table"][$this->resolveKey($key)]);
+        return isset($this->dataset[$this->resolveKey($key)]);
     }
 
     /**
@@ -263,8 +322,8 @@ class HashMap extends BaseCollection implements MapArray, MutableObjectMappedArr
      */
     #[Override("im\utils\ImmutableObjectMappedArray")]
     public function find(mixed $value): mixed {
-        return ($hashkey = array_search($value, $this->dataset["table"], true)) !== false
-                            ? $this->dataset["keys"][$hashkey] : null;
+        return ($hashkey = array_search($value, $this->dataset, true)) !== false
+                            ? $this->plainkeys[$hashkey] : null;
     }
 
     /**

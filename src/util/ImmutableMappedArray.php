@@ -43,4 +43,16 @@ interface ImmutableMappedArray extends Collection {
      * Returns a list of all keys assigned to this map
      */
     function getKeys(): ListArray;
+
+    /**
+     * Filters elements of the collection
+     *
+     * @param $filter
+     *      A `callable(mixed $key, mixed $value): bool`.
+     *
+     *      This will be called on each value in the dataset.
+     *      If the `callable` returns `false`, the value will not be copied
+     *      to the new collection and if the `callable` returns `true` then it will.
+     */
+    function filter(callable $filter): static;
 }

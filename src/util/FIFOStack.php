@@ -21,88 +21,19 @@
 
 namespace im\util;
 
+use Throwable;
+
 /**
  * A FIFO Stack (Queue) implementation
  */
 class FIFOStack extends Stackable {
 
     /**
-     * @param $capacity
-     *      Set the initializesd capacity.
-     */
-    public function __construct(int $capacity = 0) {
-        parent::__construct();
-
-        $this->dataset["capacity"] = $capacity < 100 ? 100 : $capacity;
-        $this->dataset["_capacity"] = $this->dataset["capacity"];
-        $this->dataset["offset"] = 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Collection")]
-    function clear(): void {
-        $capacity = $this->dataset["_capacity"];
-
-        parent::clear();
-
-        $this->dataset["capacity"] = $capacity;
-        $this->dataset["_capacity"] = $capacity;
-        $this->dataset["offset"] = 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Collection")]
-    public function toArray(): array {
-        $array = [];
-
-        for ($i=0; $i < $this->dataset["length"]; $i++) {
-            $loc = ($this->dataset["offset"] + $i) % $this->dataset["capacity"];
-            $array[] = $this->dataset["table"][$loc];
-        }
-
-        return $array;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    #[Override("im\util\Collection")]
-    public function copy(callable $sort = null): static {
-        $new = clone $this;
-
-        if ($sort != null) {
-            $new->clear();
-
-            for ($i=0; $i < $this->dataset["length"]; $i++) {
-                $loc = ($this->dataset["offset"] + $i) % $this->dataset["capacity"];
-                $value = $this->dataset["table"][$loc];
-
-                if ( ! $sort(null, $value) ) {
-                    continue;
-                }
-
-                $new->push($value);
-            }
-        }
-
-        return $new;
-    }
-
-    /**
      * @inheritDoc
      */
     #[Override("im\util\Stackable")]
     public function push(mixed $value): void {
-        if ($this->dataset["length"] == $this->dataset["capacity"]) {
-            $this->expandDataset();
-        }
-
-        $loc = ($this->dataset["offset"] + ($this->dataset["length"]++)) % $this->dataset["capacity"];
-        $this->dataset["table"][$loc] = $value;
+        $this->dataset->push($value);
     }
 
     /**
@@ -110,24 +41,12 @@ class FIFOStack extends Stackable {
      */
     #[Override("im\util\Stackable")]
     public function pop(): mixed {
-        if ($this->dataset["length"] > 0) {
-            $loc = $this->dataset["offset"];
-            $val = $this->dataset["table"][$loc];
+        try {
+            return $this->dataset->shift();
 
-            $this->dataset["table"][$loc] = null;
-            $this->dataset["offset"] = (++$this->dataset["offset"]) % $this->dataset["capacity"];
-            $this->dataset["length"]--;
-
-            if ($this->dataset["length"] == 0
-                    && $this->dataset["capacity"] != $this->dataset["_capacity"]) {
-
-                $this->clear(); // Reduce capacity, if it was expanded
-            }
-
-            return $val;
+        } catch (Throwable $e) {
+            return null;
         }
-
-        return null;
     }
 
     /**
@@ -135,52 +54,11 @@ class FIFOStack extends Stackable {
      */
     #[Override("im\util\Stackable")]
     public function peak(): mixed {
-        return $this->dataset["table"][$this->dataset["offset"]] ?? null;
-    }
+        try {
+            return $this->dataset->bottom();
 
-    /**
-     * @internal
-     */
-    protected function expandDataset(): void {
-        $length = $this->dataset["length"];
-        $offset = $this->dataset["offset"];
-        $capacity = $this->dataset["capacity"];
-
-        /*
-         * [9,10,1,2,3,4,5,6,7,8] => [,,1,2,3,4,5,6,7,8,9,10,,,,,,,,]
-         */
-        if ($length >= $capacity && $offset < (int) ($capacity / 2)) {
-            $newCap = intval($capacity * ($capacity < 1000 ? 1.5 : 1.25));
-
-            if ($offset > 0) {
-                $last = (($offset + $length) % $capacity) - 1;
-
-                if ($last >= ($newCap - $capacity)) {
-                    $newCap = $capacity + $last + 1;
-                }
-
-                for ($i=0,$x=$capacity; $i <= $last; $i++,$x++) {
-                    $this->dataset["table"][$x] = $this->dataset["table"][$i];
-                    $this->dataset["table"][$i] = null;
-                }
-            }
-
-            $this->dataset["capacity"] = $newCap;
-
-        /*
-         * [5,6,7,8,9,10,1,2,3,4] => [5,6,7,8,9,10,,,,,,,,1,2,3,4]
-         */
-        } else if ($length >= $capacity) {
-            $first = $offset % $capacity;
-            $newCap = intval($capacity * ($capacity < 1000 ? 1.5 : 1.25));
-
-            for ($i=$capacity-1,$x=$newCap-1; $i >= $first; $i--,$x--) {
-                $this->dataset["table"][$x] = $this->dataset["table"][$i];
-                $this->dataset["table"][$i] = null;
-            }
-
-            $this->dataset["offset"] = $first + ($newCap - $capacity);
-            $this->dataset["capacity"] = $newCap;
+        } catch (Throwable $e) {
+            return null;
         }
     }
 }

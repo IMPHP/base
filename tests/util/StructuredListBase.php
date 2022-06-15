@@ -91,6 +91,23 @@ abstract class StructuredListBase extends ListArrayBase {
     /**
      *
      */
+    public function test_sorting(): void {
+        $list = $this->initArray();
+        $list->add(2);
+        $list->add(5);
+        $list->add(1);
+        $list->add(3);
+        $list->sort(function($a, $b) { return $a - $b; });
+
+        $this->assertEquals(
+            "1,2,3,5",
+            $list->join()
+        );
+    }
+
+    /**
+     *
+     */
     public function test_instance($list = null): void {
         $list = $this->initArray();
 

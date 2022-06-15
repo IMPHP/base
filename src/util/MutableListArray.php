@@ -27,6 +27,15 @@ namespace im\util;
 interface MutableListArray extends ImmutableListArray {
 
     /**
+     * Clear the list.
+     *
+     * This will remove all data from the
+     * collections internal dataset and reset it back to the state
+     * when the collection instance was first created.
+     */
+    function clear(): void;
+
+    /**
      * Add a value to this list.
      *
      * @param $value

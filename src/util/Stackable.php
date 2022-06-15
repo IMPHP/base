@@ -22,6 +22,7 @@
 namespace im\util;
 
 use Traversable;
+use SplDoublyLinkedList;
 
 /**
  * Defines a basic stackable class.
@@ -33,6 +34,70 @@ use Traversable;
  * FILO, FIFO or something else entirely, is up to each implementation.
  */
 abstract class Stackable extends BaseCollection {
+
+
+    /** @ignore */
+    protected SplDoublyLinkedList $dataset;
+
+    /**
+     * @param $capacity
+     *      Set the initializesd capacity.
+     */
+    public function __construct() {
+        $this->dataset = new SplDoublyLinkedList();
+    }
+
+    /**
+     * @internal
+     * @php
+     */
+    #[Override("im\util\Collection")]
+    public function __clone(): void {
+        $this->dataset = clone $this->dataset;
+    }
+
+    /**
+     * @internal
+     * @php
+     */
+    #[Override("im\util\Collection")]
+    public function __unserialize(array $data): void {
+        $this->dataset = new SplDoublyLinkedList();
+
+        foreach ($data as $value) {
+            $this->dataset->push($value);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function clear(): void {
+        $this->dataset = new SplDoublyLinkedList();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    function length(): int {
+        return $this->dataset->count();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override("im\util\Collection")]
+    public function toArray(): array {
+        $array = [];
+
+        for ($i=0; $i < $this->dataset->count(); $i++) {
+            $array[] = $this->dataset[$i];
+        }
+
+        return $array;
+    }
 
     /**
      * Push a new value into this stackable instance.
@@ -124,19 +189,18 @@ abstract class Stackable extends BaseCollection {
      * @inheritDoc
      */
     #[Override("im\util\Collection")]
-    function copy(callable $sort = null): static {
+    public function copy(callable $sort = null): static {
         $new = clone $this;
 
         if ($sort != null) {
             $new->clear();
 
-            foreach ($this->dataset["table"] as $value) {
-                if ( ! $sort(null, $value) ) {
+            for ($i=0; $i < $this->dataset->count(); $i++) {
+                if ( ! $sort(null, $this->dataset[$i]) ) {
                     continue;
                 }
 
-                $new->dataset["table"][] = $value;
-                $new->dataset["length"]++;
+                $new->dataset->push($this->dataset[$i]);
             }
         }
 

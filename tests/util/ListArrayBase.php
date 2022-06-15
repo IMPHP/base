@@ -102,6 +102,17 @@ abstract class ListArrayBase extends TestCase {
             "Val1|Val3",
             $list2->join("|")
         );
+
+        $list2->add("Val4");
+        
+        $list3 = $list2->filter(function(mixed $value) {
+            return $value != "Val3";
+        });
+
+        $this->assertEquals(
+            "Val1|Val4",
+            $list3->join("|")
+        );
     }
 
     /**

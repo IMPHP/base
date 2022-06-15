@@ -22,6 +22,8 @@
 namespace im\util;
 
 use IteratorAggregate;
+use im\features\Serializable;
+use im\features\Cloneable;
 
 /**
  * Defines a base collection interface.
@@ -32,14 +34,7 @@ use IteratorAggregate;
  * content and their structure. Strict collection classes makes this
  * much easier when you can distinguish between a list or a map for example.
  */
-interface Collection extends IteratorAggregate {
-
-    /**
-     * Clear the collection. This will remove all data from the
-     * collections internal dataset and reset it back to the state
-     * when the collection instance was first created.
-     */
-    function clear(): void;
+interface Collection extends IteratorAggregate, Serializable, Cloneable {
 
     /**
      * Get the current length of the collection.
@@ -71,6 +66,10 @@ interface Collection extends IteratorAggregate {
      *
      * @return
      *      Returns a cloned version of this instance.
+     *
+     * @deprecated
+     *      This has been replaced by `clone()` and `filter()`, where
+     *      the later is collection type specific. 
      */
     function copy(callable $sort = null): static;
 
