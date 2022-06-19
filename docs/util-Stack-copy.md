@@ -5,6 +5,9 @@ ____
 ## Description
 Clone this instance and return it.
 
+> :warning: **Deprecated**  
+> This has been replaced by `clone()` and `filter()`, where the later is collection type specific.  
+
 ## Synopsis
 ```php
 public copy(null|callable $sort = NULL): static

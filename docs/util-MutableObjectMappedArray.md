@@ -7,7 +7,7 @@ Defines a modifiable map using mixed/object keys
 
 ## Synopsis
 ```php
-interface MutableObjectMappedArray implements im\util\ImmutableObjectMappedArray, im\util\MutableMappedArray, im\util\Collection, Traversable, IteratorAggregate, im\util\ImmutableMappedArray {
+interface MutableObjectMappedArray implements im\util\ImmutableObjectMappedArray, im\util\MutableMappedArray, im\util\Collection, Traversable, im\features\Cloneable, im\features\Serializable, IteratorAggregate, im\util\ImmutableMappedArray {
 
     // Methods
     set(mixed $key, mixed $value): mixed
@@ -20,13 +20,17 @@ interface MutableObjectMappedArray implements im\util\ImmutableObjectMappedArray
     contains(mixed $value): bool
     getValues(): im\util\ListArray
     getKeys(): im\util\ListArray
-    clear(): void
+    filter(callable $filter): static
     length(): int
     toArray(): array
     copy(null|callable $sort = NULL): static
     equals(object $other): bool
     traverse(callable $func): bool
     getIterator()
+    __serialize(): array
+    __unserialize(array $data): void
+    __debugInfo(): array
+    clone(): static
     addIterable(iterable $list): void
     remove(mixed $value): int
 }
@@ -43,12 +47,16 @@ interface MutableObjectMappedArray implements im\util\ImmutableObjectMappedArray
 | [__MutableObjectMappedArray&nbsp;::&nbsp;contains__](util-MutableObjectMappedArray-contains.md) | Check if a value exists in this map |
 | [__MutableObjectMappedArray&nbsp;::&nbsp;getValues__](util-MutableObjectMappedArray-getValues.md) | Returns a list of all values assigned to this map |
 | [__MutableObjectMappedArray&nbsp;::&nbsp;getKeys__](util-MutableObjectMappedArray-getKeys.md) | Returns a list of all keys assigned to this map |
-| [__MutableObjectMappedArray&nbsp;::&nbsp;clear__](util-MutableObjectMappedArray-clear.md) | Clear the collection |
+| [__MutableObjectMappedArray&nbsp;::&nbsp;filter__](util-MutableObjectMappedArray-filter.md) | Filters elements of the collection |
 | [__MutableObjectMappedArray&nbsp;::&nbsp;length__](util-MutableObjectMappedArray-length.md) | Get the current length of the collection |
 | [__MutableObjectMappedArray&nbsp;::&nbsp;toArray__](util-MutableObjectMappedArray-toArray.md) | Builds a PHP array containing all of the current values within the collection |
-| [__MutableObjectMappedArray&nbsp;::&nbsp;copy__](util-MutableObjectMappedArray-copy.md) | Clone this instance and return it |
+| [__~MutableObjectMappedArray&nbsp;::&nbsp;copy~__](util-MutableObjectMappedArray-copy.md) | Clone this instance and return it |
 | [__MutableObjectMappedArray&nbsp;::&nbsp;equals__](util-MutableObjectMappedArray-equals.md) | Compare an object against this instance |
 | [__MutableObjectMappedArray&nbsp;::&nbsp;traverse__](util-MutableObjectMappedArray-traverse.md) | Traverses the dataset |
 | [__MutableObjectMappedArray&nbsp;::&nbsp;getIterator__](util-MutableObjectMappedArray-getIterator.md) |  |
+| [__MutableObjectMappedArray&nbsp;::&nbsp;\_\_serialize__](util-MutableObjectMappedArray-__serialize.md) |  |
+| [__MutableObjectMappedArray&nbsp;::&nbsp;\_\_unserialize__](util-MutableObjectMappedArray-__unserialize.md) |  |
+| [__MutableObjectMappedArray&nbsp;::&nbsp;\_\_debugInfo__](util-MutableObjectMappedArray-__debugInfo.md) |  |
+| [__MutableObjectMappedArray&nbsp;::&nbsp;clone__](util-MutableObjectMappedArray-clone.md) | A proper OOP cloning method  Classes implementing this interface should also be able to deal with `clone $object` |
 | [__MutableObjectMappedArray&nbsp;::&nbsp;addIterable__](util-MutableObjectMappedArray-addIterable.md) | Add elements from an iterator |
 | [__MutableObjectMappedArray&nbsp;::&nbsp;remove__](util-MutableObjectMappedArray-remove.md) | Remove a value from all assigned keys within this map  Searches for a specified value and removes all occurrences that it finds |

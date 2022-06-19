@@ -12,7 +12,7 @@ This is mostly the same as `RawStream`. The differences are:
 
 ## Synopsis
 ```php
-class FileStream implements im\io\Stream uses im\io\res\StreamDecorator {
+class FileStream implements im\io\Stream, Stringable uses im\io\res\StreamDecorator {
 
     // Inherited Constants
     public string DEF_MODE = 'r+'

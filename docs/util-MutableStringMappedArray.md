@@ -7,7 +7,7 @@ Defines a modifiable map using string keys
 
 ## Synopsis
 ```php
-interface MutableStringMappedArray implements im\util\ImmutableStringMappedArray, im\util\MutableMappedArray, im\util\Collection, Traversable, IteratorAggregate, im\util\ImmutableMappedArray {
+interface MutableStringMappedArray implements im\util\ImmutableStringMappedArray, im\util\MutableMappedArray, im\util\Collection, Traversable, im\features\Cloneable, im\features\Serializable, IteratorAggregate, im\util\ImmutableMappedArray {
 
     // Methods
     set(string $key, mixed $value): mixed
@@ -20,13 +20,17 @@ interface MutableStringMappedArray implements im\util\ImmutableStringMappedArray
     contains(mixed $value): bool
     getValues(): im\util\ListArray
     getKeys(): im\util\ListArray
-    clear(): void
+    filter(callable $filter): static
     length(): int
     toArray(): array
     copy(null|callable $sort = NULL): static
     equals(object $other): bool
     traverse(callable $func): bool
     getIterator()
+    __serialize(): array
+    __unserialize(array $data): void
+    __debugInfo(): array
+    clone(): static
     addIterable(iterable $list): void
     remove(mixed $value): int
 }
@@ -43,12 +47,16 @@ interface MutableStringMappedArray implements im\util\ImmutableStringMappedArray
 | [__MutableStringMappedArray&nbsp;::&nbsp;contains__](util-MutableStringMappedArray-contains.md) | Check if a value exists in this map |
 | [__MutableStringMappedArray&nbsp;::&nbsp;getValues__](util-MutableStringMappedArray-getValues.md) | Returns a list of all values assigned to this map |
 | [__MutableStringMappedArray&nbsp;::&nbsp;getKeys__](util-MutableStringMappedArray-getKeys.md) | Returns a list of all keys assigned to this map |
-| [__MutableStringMappedArray&nbsp;::&nbsp;clear__](util-MutableStringMappedArray-clear.md) | Clear the collection |
+| [__MutableStringMappedArray&nbsp;::&nbsp;filter__](util-MutableStringMappedArray-filter.md) | Filters elements of the collection |
 | [__MutableStringMappedArray&nbsp;::&nbsp;length__](util-MutableStringMappedArray-length.md) | Get the current length of the collection |
 | [__MutableStringMappedArray&nbsp;::&nbsp;toArray__](util-MutableStringMappedArray-toArray.md) | Builds a PHP array containing all of the current values within the collection |
-| [__MutableStringMappedArray&nbsp;::&nbsp;copy__](util-MutableStringMappedArray-copy.md) | Clone this instance and return it |
+| [__~MutableStringMappedArray&nbsp;::&nbsp;copy~__](util-MutableStringMappedArray-copy.md) | Clone this instance and return it |
 | [__MutableStringMappedArray&nbsp;::&nbsp;equals__](util-MutableStringMappedArray-equals.md) | Compare an object against this instance |
 | [__MutableStringMappedArray&nbsp;::&nbsp;traverse__](util-MutableStringMappedArray-traverse.md) | Traverses the dataset |
 | [__MutableStringMappedArray&nbsp;::&nbsp;getIterator__](util-MutableStringMappedArray-getIterator.md) |  |
+| [__MutableStringMappedArray&nbsp;::&nbsp;\_\_serialize__](util-MutableStringMappedArray-__serialize.md) |  |
+| [__MutableStringMappedArray&nbsp;::&nbsp;\_\_unserialize__](util-MutableStringMappedArray-__unserialize.md) |  |
+| [__MutableStringMappedArray&nbsp;::&nbsp;\_\_debugInfo__](util-MutableStringMappedArray-__debugInfo.md) |  |
+| [__MutableStringMappedArray&nbsp;::&nbsp;clone__](util-MutableStringMappedArray-clone.md) | A proper OOP cloning method  Classes implementing this interface should also be able to deal with `clone $object` |
 | [__MutableStringMappedArray&nbsp;::&nbsp;addIterable__](util-MutableStringMappedArray-addIterable.md) | Add elements from an iterator |
 | [__MutableStringMappedArray&nbsp;::&nbsp;remove__](util-MutableStringMappedArray-remove.md) | Remove a value from all assigned keys within this map  Searches for a specified value and removes all occurrences that it finds |

@@ -4,7 +4,7 @@ ____
 
 ## Synopsis
 ```php
-public __construct(int $capacity = 0)
+public __construct()
 ```
 
 ## Parameters

@@ -6,3 +6,8 @@ ____
 ```php
 public __construct()
 ```
+
+## Parameters
+| Name | Description |
+| :--- | :---------- |
+| capacity | Set the initializesd capacity. |

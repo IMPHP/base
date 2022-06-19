@@ -14,7 +14,7 @@ to access it.
 
 ## Synopsis
 ```php
-interface MapArray implements im\util\MutableMappedArray, im\util\Collection, Traversable, IteratorAggregate, im\util\ImmutableMappedArray {
+interface MapArray implements im\util\MutableMappedArray, im\util\Collection, Traversable, im\features\Cloneable, im\features\Serializable, IteratorAggregate, im\util\ImmutableMappedArray {
 
     // Inherited Methods
     addIterable(iterable $list): void
@@ -22,13 +22,17 @@ interface MapArray implements im\util\MutableMappedArray, im\util\Collection, Tr
     contains(mixed $value): bool
     getValues(): im\util\ListArray
     getKeys(): im\util\ListArray
-    clear(): void
+    filter(callable $filter): static
     length(): int
     toArray(): array
     copy(null|callable $sort = NULL): static
     equals(object $other): bool
     traverse(callable $func): bool
     getIterator()
+    __serialize(): array
+    __unserialize(array $data): void
+    __debugInfo(): array
+    clone(): static
 }
 ```
 
@@ -40,10 +44,14 @@ interface MapArray implements im\util\MutableMappedArray, im\util\Collection, Tr
 | [__MapArray&nbsp;::&nbsp;contains__](util-MapArray-contains.md) | Check if a value exists in this map |
 | [__MapArray&nbsp;::&nbsp;getValues__](util-MapArray-getValues.md) | Returns a list of all values assigned to this map |
 | [__MapArray&nbsp;::&nbsp;getKeys__](util-MapArray-getKeys.md) | Returns a list of all keys assigned to this map |
-| [__MapArray&nbsp;::&nbsp;clear__](util-MapArray-clear.md) | Clear the collection |
+| [__MapArray&nbsp;::&nbsp;filter__](util-MapArray-filter.md) | Filters elements of the collection |
 | [__MapArray&nbsp;::&nbsp;length__](util-MapArray-length.md) | Get the current length of the collection |
 | [__MapArray&nbsp;::&nbsp;toArray__](util-MapArray-toArray.md) | Builds a PHP array containing all of the current values within the collection |
-| [__MapArray&nbsp;::&nbsp;copy__](util-MapArray-copy.md) | Clone this instance and return it |
+| [__~MapArray&nbsp;::&nbsp;copy~__](util-MapArray-copy.md) | Clone this instance and return it |
 | [__MapArray&nbsp;::&nbsp;equals__](util-MapArray-equals.md) | Compare an object against this instance |
 | [__MapArray&nbsp;::&nbsp;traverse__](util-MapArray-traverse.md) | Traverses the dataset |
 | [__MapArray&nbsp;::&nbsp;getIterator__](util-MapArray-getIterator.md) |  |
+| [__MapArray&nbsp;::&nbsp;\_\_serialize__](util-MapArray-__serialize.md) |  |
+| [__MapArray&nbsp;::&nbsp;\_\_unserialize__](util-MapArray-__unserialize.md) |  |
+| [__MapArray&nbsp;::&nbsp;\_\_debugInfo__](util-MapArray-__debugInfo.md) |  |
+| [__MapArray&nbsp;::&nbsp;clone__](util-MapArray-clone.md) | A proper OOP cloning method  Classes implementing this interface should also be able to deal with `clone $object` |

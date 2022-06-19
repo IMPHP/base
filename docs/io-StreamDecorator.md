@@ -11,7 +11,7 @@ an underlaying `im\io\Stream` instance via `$this->stream`.
 
 ## Synopsis
 ```php
-trait StreamDecorator implements Stringable {
+trait StreamDecorator {
 
     // Properties
     public im\io\Stream $stream
